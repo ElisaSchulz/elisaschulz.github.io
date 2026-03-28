@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HZ Invest — Educação Financeira e Consultoria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #080c10;
+    --bg2: #0d1318;
+    --bg3: #111820;
+    --border: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --gold-dim: rgba(201,168,76,0.15);
+    --white: #f0ece4;
+    --muted: #6b7280;
+    --green: #22c55e;
+    --text: #d4cfc7;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 0 5%;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(8,12,16,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: var(--white);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+  .nav-logo span { color: var(--gold); }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+
+  .nav-cta {
+    background: var(--gold);
+    color: var(--bg) !important;
+    padding: 0.5rem 1.2rem;
+    border-radius: 4px;
+    font-weight: 600 !important;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--gold-light) !important; color: var(--bg) !important; }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 120px 5% 80px;
+    overflow: hidden;
+  }
+
+  .hero-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 100%);
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    max-width: 760px;
+    z-index: 1;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--gold-dim);
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold-light);
+    font-size: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.85rem;
+    border-radius: 2px;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    color: var(--white);
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  h1 .accent { color: var(--gold); }
+  h1 .thin { font-weight: 400; color: var(--muted); }
+
+  .hero-sub {
+    font-size: 1.125rem;
+    color: var(--muted);
+    max-width: 520px;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--gold);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    padding: 0.85rem 1.8rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: var(--white);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.85rem 1.8rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--white);
+  }
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 0.1rem;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── SECTION HELPERS ─── */
+  section {
+    position: relative;
+    padding: 100px 5%;
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin-bottom: 1.2rem;
+  }
+  .section-sub {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 500px;
+    font-weight: 300;
+  }
+
+  /* ─── WHAT WE OFFER ─── */
+  #oferta { background: var(--bg2); }
+
+  .offer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 3.5rem;
+  }
+  .offer-card {
+    background: var(--bg2);
+    padding: 2.2rem;
+    transition: background 0.2s;
+  }
+  .offer-card:hover { background: var(--bg3); }
+  .offer-icon {
+    font-size: 1.6rem;
+    margin-bottom: 1.2rem;
+    display: block;
+  }
+  .offer-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.6rem;
+  }
+  .offer-card p {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .offer-tag {
+    display: inline-block;
+    margin-top: 1.2rem;
+    font-size: 0.7rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,0.25);
+    padding: 0.2rem 0.55rem;
+    border-radius: 2px;
+  }
+
+  /* ─── TEAM ─── */
+  #equipe { background: var(--bg); }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+  .team-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .team-card:hover { border-color: rgba(201,168,76,0.3); transform: translateY(-3px); }
+  .team-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(20%) contrast(1.05);
+  }
+  .team-info { padding: 1.4rem; }
+  .team-info h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.3rem;
+  }
+  .team-role {
+    font-size: 0.78rem;
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.7rem;
+  }
+  .team-info p {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ─── CONSULTORIA ─── */
+  #consultoria { background: var(--bg2); }
+
+  .consult-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    margin-top: 3.5rem;
+  }
+  .consult-list { list-style: none; margin-top: 1.8rem; }
+  .consult-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+  .consult-list li:last-child { border-bottom: none; }
+  .check {
+    color: var(--gold);
+    font-size: 0.8rem;
+    margin-top: 0.15rem;
+    flex-shrink: 0;
+  }
+
+  .consult-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2.5rem;
+  }
+  .consult-box h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+  .consult-box p {
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin-bottom: 1.8rem;
+    line-height: 1.7;
+  }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-family: 'DM Mono', monospace;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.7rem 1rem;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--gold);
+  }
+  .form-group select option { background: var(--bg2); }
+  .form-group textarea { resize: vertical; min-height: 90px; }
+
+  /* ─── TOOLS TEASER ─── */
+  #ferramentas { background: var(--bg); }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+  .tool-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .tool-card:hover::before { opacity: 1; }
+  .tool-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+  .tool-card p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 1.2rem;
+  }
+  .tool-badge {
+    font-size: 0.68rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(34,197,94,0.1);
+    color: var(--green);
+    border: 1px solid rgba(34,197,94,0.2);
+    padding: 0.2rem 0.55rem;
+    border-radius: 2px;
+  }
+  .tool-badge.soon {
+    background: var(--gold-dim);
+    color: var(--gold);
+    border-color: rgba(201,168,76,0.2);
+  }
+
+  /* ─── SIMULATOR ─── */
+  .simulator {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2.5rem;
+    margin-top: 2rem;
+  }
+  .sim-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 1.5rem;
+  }
+  .sim-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .sim-field label {
+    display: block;
+    font-size: 0.72rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.35rem;
+  }
+  .sim-field input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.6rem 0.8rem;
+    color: var(--white);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .sim-field input:focus { border-color: var(--gold); }
+  .sim-result {
+    display: flex;
+    gap: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .sim-result-item { flex: 1; min-width: 120px; }
+  .sim-result-label {
+    font-size: 0.72rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.3rem;
+  }
+  .sim-result-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--gold-light);
+  }
+
+  /* ─── TESTIMONIALS ─── */
+  #depoimentos { background: var(--bg2); }
+
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+  .testi-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2rem;
+  }
+  .testi-quote {
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.75;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+  }
+  .testi-author { display: flex; align-items: center; gap: 0.75rem; }
+  .testi-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--gold-dim);
+    border: 1px solid rgba(201,168,76,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .testi-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--white);
+  }
+  .testi-title-role {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.1rem;
+  }
+
+  /* ─── TELEGRAM CTA ─── */
+  #comunidade {
+    background: var(--bg);
+    text-align: center;
+  }
+  .cta-box {
+    max-width: 580px;
+    margin: 0 auto;
+  }
+  .cta-box p {
+    color: var(--muted);
+    margin: 1.2rem 0 2.5rem;
+    font-size: 1rem;
+    font-weight: 300;
+  }
+  .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+  /* ─── EMAIL CAPTURE ─── */
+  #newsletter { background: var(--bg2); }
+  .newsletter-inner {
+    display: flex;
+    gap: 4rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .newsletter-inner > div { flex: 1; min-width: 240px; }
+  .email-form { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; }
+  .email-form input {
+    flex: 1;
+    min-width: 220px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.75rem 1.1rem;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .email-form input:focus { border-color: var(--gold); }
+  .email-form input::placeholder { color: var(--muted); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 3rem 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    gap: 1.5rem;
+  }
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .footer-logo span { color: var(--gold); }
+  footer p {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .footer-links a {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--white); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    nav { padding: 0 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 70px 1.5rem; }
+    .hero { padding: 110px 1.5rem 70px; }
+    .hero-stats { gap: 2rem; flex-wrap: wrap; }
+    .consult-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+    .sim-row { grid-template-columns: 1fr; }
+    footer { flex-direction: column; text-align: center; }
+  }
+
+  /* ─── SCROLL REVEAL ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">HZ<span>.</span>Invest</a>
+  <ul class="nav-links">
+    <li><a href="#oferta">O que fazemos</a></li>
+    <li><a href="#equipe">Equipe</a></li>
+    <li><a href="#consultoria">Consultoria</a></li>
+    <li><a href="#ferramentas">Ferramentas</a></li>
+    <li><a href="#depoimentos">Depoimentos</a></li>
+    <li><a href="https://t.me/+uMdIiepcb-E0ZWIx" class="nav-cta" target="_blank">Entrar no Grupo</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Comunidade ativa no Telegram
+    </div>
+    <h1>
+      Finanças sérias.<br>
+      <span class="accent">Linguagem</span> direta.<br>
+      <span class="thin">Resultado real.</span>
+    </h1>
+    <p class="hero-sub">
+      Do básico ao avançado — educação financeira, acompanhamento de mercado e consultoria personalizada para brasileiros que levam dinheiro a sério.
+    </p>
+    <div class="hero-actions">
+      <a href="https://t.me/+uMdIiepcb-E0ZWIx" class="btn-primary" target="_blank">
+        📲 Entrar no Grupo — Gratuito
+      </a>
+      <a href="#consultoria" class="btn-secondary">
+        Falar com um especialista →
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Gratuito</div>
+      </div>
+      <div>
+        <div class="stat-num">3</div>
+        <div class="stat-label">Especialistas</div>
+      </div>
+      <div>
+        <div class="stat-num">Diário</div>
+        <div class="stat-label">Conteúdo novo</div>
+      </div>
+      <div>
+        <div class="stat-num">BR + EUA</div>
+        <div class="stat-label">Mercados cobertos</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- O QUE FAZEMOS -->
+<section id="oferta">
+  <div class="reveal">
+    <div class="section-label">// o que fazemos</div>
+    <h2 class="section-title">Uma plataforma completa<br>de educação financeira</h2>
+    <p class="section-sub">Conteúdo gratuito, ferramentas práticas e consultoria especializada — tudo no mesmo lugar.</p>
+  </div>
+  <div class="offer-grid reveal">
+    <div class="offer-card">
+      <span class="offer-icon">📡</span>
+      <h3>Comunidade Telegram</h3>
+      <p>Acompanhe o mercado brasileiro e americano em tempo real. Notícias, análises e discussões com uma comunidade engajada e séria.</p>
+      <span class="offer-tag">100% gratuito</span>
+    </div>
+    <div class="offer-card">
+      <span class="offer-icon">🎓</span>
+      <h3>Educação Financeira</h3>
+      <p>Do básico ao avançado. Aprenda sobre renda fixa, variável, FIIs, ações, ETFs e muito mais com linguagem acessível e direta ao ponto.</p>
+      <span class="offer-tag">Em breve: cursos</span>
+    </div>
+    <div class="offer-card">
+      <span class="offer-icon">🧭</span>
+      <h3>Consultoria Personalizada</h3>
+      <p>Diagnóstico financeiro completo, planejamento de carteira e acompanhamento contínuo adaptado à sua realidade e objetivos.</p>
+      <span class="offer-tag">Agendar conversa</span>
+    </div>
+    <div class="offer-card">
+      <span class="offer-icon">🛠️</span>
+      <h3>Ferramentas Financeiras</h3>
+      <p>Simuladores de investimento, calculadoras de juros compostos, planejadores de aposentadoria e mais. Grátis e direto no site.</p>
+      <span class="offer-tag">Em breve</span>
+    </div>
+    <div class="offer-card">
+      <span class="offer-icon">📸</span>
+      <h3>Conteúdo no Instagram</h3>
+      <p>Resumos do mercado, tradução de notícias econômicas e dicas práticas em formato visual. Salve e compartilhe com quem você quer bem.</p>
+      <span class="offer-tag">@hzinvest</span>
+    </div>
+    <div class="offer-card">
+      <span class="offer-icon">📰</span>
+      <h3>Newsletter Semanal</h3>
+      <p>Um resumo completo da semana nos mercados, direto no seu e-mail. Sem spam, sem enrolação — só o que importa para o seu bolso.</p>
+      <span class="offer-tag">Em breve</span>
+    </div>
+  </div>
+</section>
+
+<!-- EQUIPE -->
+<section id="equipe">
+  <div class="reveal">
+    <div class="section-label">// quem somos</div>
+    <h2 class="section-title">Especialistas por trás<br>do HZ Invest</h2>
+    <p class="section-sub">Uma equipe com formação sólida e experiência de mercado, comprometida com sua evolução financeira.</p>
+  </div>
+  <div class="team-grid reveal">
+    <div class="team-card">
+      <img class="team-img" src="https://framerusercontent.com/images/wpWGN1vCm63kL2EkTuzvVwC1EMk.jpeg" alt="Luiz Persechini">
+      <div class="team-info">
+        <h3>Luiz Persechini</h3>
+        <div class="team-role">Economista & Empreendedor</div>
+        <p>Com vasta experiência no mercado financeiro, traz perspectivas únicas sobre economia e empreendedorismo para o grupo.</p>
+      </div>
+    </div>
+    <div class="team-card">
+      <img class="team-img" src="https://framerusercontent.com/images/YWtaaqQjHLDgsPztXnVabrHlhM.jpeg" alt="Eduardo Horta">
+      <div class="team-info">
+        <h3>Eduardo Horta</h3>
+        <div class="team-role">Gestor de Investimentos</div>
+        <p>Conhecimento profundo em gestão de carteiras. Fornece insights valiosos para navegar o cenário de investimentos com segurança.</p>
+      </div>
+    </div>
+    <div class="team-card">
+      <img class="team-img" src="https://framerusercontent.com/images/0DlZ0kmXAutFyVmhsf2IzDVYA.jpeg" alt="Elisa Schulz">
+      <div class="team-info">
+        <h3>Elisa Schulz</h3>
+        <div class="team-role">Economista & Mestre em Finanças</div>
+        <p>Responsável pelos conteúdos diários. Une teoria e prática para tornar o mercado financeiro mais acessível e compreensível.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONSULTORIA -->
+<section id="consultoria">
+  <div class="reveal">
+    <div class="section-label">// consultoria</div>
+    <h2 class="section-title">Seu dinheiro merece<br>atenção especializada</h2>
+    <p class="section-sub">Consultoria financeira personalizada com acompanhamento real — não é produto, é parceria.</p>
+  </div>
+  <div class="consult-layout reveal">
+    <div>
+      <ul class="consult-list">
+        <li><span class="check">◆</span> Diagnóstico completo da sua situação financeira atual</li>
+        <li><span class="check">◆</span> Planejamento de carteira alinhado ao seu perfil e objetivos</li>
+        <li><span class="check">◆</span> Estratégias para reserva de emergência e proteção patrimonial</li>
+        <li><span class="check">◆</span> Orientação sobre renda fixa, variável e fundos</li>
+        <li><span class="check">◆</span> Acompanhamento contínuo com revisões periódicas</li>
+        <li><span class="check">◆</span> Suporte direto por WhatsApp com os especialistas</li>
+        <li><span class="check">◆</span> Planejamento de aposentadoria e metas de longo prazo</li>
+      </ul>
+    </div>
+    <div class="consult-box">
+      <h3>Agendar uma conversa</h3>
+      <p>Preencha seus dados e entraremos em contato para uma primeira conversa sem compromisso. Totalmente gratuita.</p>
+      <div class="form-group">
+        <label>Seu nome</label>
+        <input type="text" placeholder="Como você se chama?">
+      </div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" placeholder="seu@email.com">
+      </div>
+      <div class="form-group">
+        <label>O que você busca?</label>
+        <select>
+          <option value="" disabled selected>Selecione uma opção</option>
+          <option>Organizar minha vida financeira</option>
+          <option>Começar a investir</option>
+          <option>Otimizar minha carteira atual</option>
+          <option>Planejamento de aposentadoria</option>
+          <option>Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Mensagem (opcional)</label>
+        <textarea placeholder="Conte um pouco sobre sua situação..."></textarea>
+      </div>
+      <button class="btn-primary" style="width:100%; justify-content:center; border:none; cursor:pointer; font-size:0.95rem;" onclick="alert('Em breve! Por enquanto, entre em contato pelo Telegram ou Instagram.')">
+        Quero uma conversa gratuita →
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FERRAMENTAS -->
+<section id="ferramentas">
+  <div class="reveal">
+    <div class="section-label">// ferramentas</div>
+    <h2 class="section-title">Simule, calcule<br>e planeje grátis</h2>
+    <p class="section-sub">Ferramentas práticas para visualizar o poder dos seus investimentos ao longo do tempo.</p>
+  </div>
+
+  <!-- LIVE SIMULATOR -->
+  <div class="simulator reveal">
+    <div class="sim-title">📈 Simulador de Juros Compostos</div>
+    <div class="sim-row">
+      <div class="sim-field">
+        <label>Aporte inicial (R$)</label>
+        <input type="number" id="sim-inicial" value="1000" oninput="calcSim()">
+      </div>
+      <div class="sim-field">
+        <label>Aporte mensal (R$)</label>
+        <input type="number" id="sim-mensal" value="500" oninput="calcSim()">
+      </div>
+      <div class="sim-field">
+        <label>Taxa anual (%)</label>
+        <input type="number" id="sim-taxa" value="12" step="0.1" oninput="calcSim()">
+      </div>
+      <div class="sim-field">
+        <label>Período (anos)</label>
+        <input type="number" id="sim-anos" value="10" oninput="calcSim()">
+      </div>
+      <div class="sim-field">
+        <label>Inflação anual (%)</label>
+        <input type="number" id="sim-inflacao" value="4.5" step="0.1" oninput="calcSim()">
+      </div>
+    </div>
+    <div class="sim-result">
+      <div class="sim-result-item">
+        <div class="sim-result-label">Total investido</div>
+        <div class="sim-result-val" id="res-investido">—</div>
+      </div>
+      <div class="sim-result-item">
+        <div class="sim-result-label">Valor final bruto</div>
+        <div class="sim-result-val" id="res-final">—</div>
+      </div>
+      <div class="sim-result-item">
+        <div class="sim-result-label">Ganho em juros</div>
+        <div class="sim-result-val" id="res-juros">—</div>
+      </div>
+      <div class="sim-result-item">
+        <div class="sim-result-label">Valor real (inflação)</div>
+        <div class="sim-result-val" id="res-real">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tools-grid reveal" style="margin-top:1.5rem;">
+    <div class="tool-card">
+      <h3>Calculadora de FIRE</h3>
+      <p>Descubra quanto você precisa acumular para viver de renda e em quantos anos pode alcançar a independência financeira.</p>
+      <span class="tool-badge soon">Em breve</span>
+    </div>
+    <div class="tool-card">
+      <h3>Comparador de Investimentos</h3>
+      <p>Compare CDB, LCI, LCA, Tesouro Direto e ações lado a lado com rentabilidade líquida já descontando IR e inflação.</p>
+      <span class="tool-badge soon">Em breve</span>
+    </div>
+    <div class="tool-card">
+      <h3>Planilha de Orçamento</h3>
+      <p>Template mensal para mapear receitas, despesas e metas de poupança. Baixe gratuitamente e comece hoje.</p>
+      <span class="tool-badge soon">Em breve</span>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="depoimentos">
+  <div class="reveal">
+    <div class="section-label">// depoimentos</div>
+    <h2 class="section-title">Quem faz parte<br>e adora</h2>
+  </div>
+  <div class="testi-grid reveal">
+    <div class="testi-card">
+      <p class="testi-quote">"Gosto muito de como o grupo consegue me manter atualizada, mesmo nos dias mais corridos. Os resumos são objetivos e bem explicados, e consigo acompanhar o que está acontecendo no Brasil e lá fora."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">RO</div>
+        <div>
+          <div class="testi-name">Renata O.</div>
+          <div class="testi-title-role">Designer · São Paulo</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <p class="testi-quote">"O que mais me chama atenção é a disponibilidade com que respondem às dúvidas. Sempre que pergunto, recebo uma explicação clara e completa, o que me dá mais confiança para tomar decisões nos meus investimentos."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">LM</div>
+        <div>
+          <div class="testi-name">Lucas M.</div>
+          <div class="testi-title-role">Advogado · Belo Horizonte</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <p class="testi-quote">"O HZ Invest vai muito além de conteúdo: é um espaço onde posso trocar ideias, ouvir outras perspectivas e discutir estratégias com pessoas sérias e interessadas em aprender. Essa troca é muito valiosa."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">TR</div>
+        <div>
+          <div class="testi-name">Thiago R.</div>
+          <div class="testi-title-role">Programador · Porto Alegre</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TELEGRAM CTA -->
+<section id="comunidade">
+  <div class="cta-box reveal">
+    <div class="section-label">// comunidade</div>
+    <h2 class="section-title">Pronto para levar<br>seu dinheiro a sério?</h2>
+    <p>Entre no grupo gratuito do Telegram agora e comece a acompanhar o mercado com quem entende do assunto.</p>
+    <div class="cta-actions">
+      <a href="https://t.me/+uMdIiepcb-E0ZWIx" class="btn-primary" target="_blank">
+        📲 Entrar no Telegram — Grátis
+      </a>
+      <a href="#consultoria" class="btn-secondary">Falar com especialista</a>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section id="newsletter">
+  <div class="newsletter-inner reveal">
+    <div>
+      <div class="section-label">// newsletter</div>
+      <h2 class="section-title" style="font-size:1.9rem;">A semana financeira<br>no seu e-mail</h2>
+      <p class="section-sub">Toda sexta, um resumo do que moveu os mercados. Sem spam. Cancele quando quiser.</p>
+    </div>
+    <div>
+      <div class="email-form">
+        <input type="email" placeholder="seu@email.com">
+        <button class="btn-primary" style="border:none; cursor:pointer; white-space:nowrap;" onclick="alert('Newsletter em breve! Enquanto isso, entre no nosso grupo do Telegram.')">Quero receber →</button>
+      </div>
+      <p style="font-size:0.75rem; color: var(--muted); margin-top:0.75rem;">Seus dados estão seguros. Sem spam, prometemos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">HZ<span>.</span>Invest</a>
+  <p>© 2025 HZ Invest · Todos os direitos reservados</p>
+  <div class="footer-links">
+    <a href="https://t.me/+uMdIiepcb-E0ZWIx" target="_blank">Telegram</a>
+    <a href="#" target="_blank">Instagram</a>
+    <a href="#consultoria">Consultoria</a>
+    <a href="#ferramentas">Ferramentas</a>
+  </div>
+</footer>
+
+<script>
+  // ─── SCROLL REVEAL ───
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+
+  // ─── SIMULATOR ───
+  function fmt(n) {
+    return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function calcSim() {
+    const P  = parseFloat(document.getElementById('sim-inicial').value)  || 0;
+    const M  = parseFloat(document.getElementById('sim-mensal').value)   || 0;
+    const r  = (parseFloat(document.getElementById('sim-taxa').value)    || 0) / 100;
+    const n  = (parseInt(document.getElementById('sim-anos').value)      || 0) * 12;
+    const ri = (parseFloat(document.getElementById('sim-inflacao').value)|| 0) / 100;
+
+    const rm = Math.pow(1 + r, 1/12) - 1;
+    let total = P * Math.pow(1 + rm, n);
+    if (rm > 0) total += M * (Math.pow(1 + rm, n) - 1) / rm;
+    else total += M * n;
+
+    const investido = P + M * n;
+    const juros = total - investido;
+    const realFactor = Math.pow(1 + ri, -(parseInt(document.getElementById('sim-anos').value) || 0));
+    const real = total * realFactor;
+
+    document.getElementById('res-investido').textContent = fmt(investido);
+    document.getElementById('res-final').textContent     = fmt(total);
+    document.getElementById('res-juros').textContent     = fmt(juros);
+    document.getElementById('res-real').textContent      = fmt(real);
+  }
+  calcSim();
+
+  // ─── NAV ACTIVE HIGHLIGHT ───
+  const navLinks = document.querySelectorAll('.nav-links a:not(.nav-cta)');
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY + 100;
+    document.querySelectorAll('section[id]').forEach(sec => {
+      if (y >= sec.offsetTop && y < sec.offsetTop + sec.offsetHeight) {
+        navLinks.forEach(a => {
+          a.style.color = a.getAttribute('href') === '#' + sec.id ? 'var(--white)' : '';
+        });
+      }
+    });
+  });
+</script>
+</body>
+</html>
