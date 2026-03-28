@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HZ Invest — Educação Financeira e Consultoria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    /* HZ Invest Brand Colors — extracted from logo */
+    --navy:       #1a1464;   /* deep logo blue */
+    --navy-dark:  #120e4e;   /* darker navy for depth */
+    --navy-mid:   #1e1875;   /* mid navy for cards */
+    --navy-light: #252098;   /* lighter navy for hover states */
+    --teal:       #6bbfb5;   /* logo mountain/icon teal */
+    --teal-light: #8dd4cb;   /* lighter teal for highlights */
+    --teal-dim:   rgba(107,191,181,0.14);
+    --teal-border:rgba(107,191,181,0.25);
+    --white:      #f4f2ff;   /* soft white with navy tint */
+    --white-pure: #ffffff;
+    --muted:      rgba(196,193,230,0.55);
+    --text:       rgba(220,218,245,0.85);
+    --border:     rgba(107,191,181,0.12);
+    --green:      #4ade80;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy-dark);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 18px;
+    line-height: 1.65;
+    overflow-x: hidden;
+  }
+
+  /* ─── ANIMATED BACKGROUND ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 10%, rgba(107,191,181,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 80% 90%, rgba(107,191,181,0.05) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 80% at 50% 50%, rgba(26,20,100,0.9) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* geometric dot pattern */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(107,191,181,0.18) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, black 0%, transparent 80%);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.35;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 0 5%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(18,14,78,0.88);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    font-size: 1.35rem;
+    color: var(--white-pure);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+
+  .nav-cta {
+    background: var(--teal) !important;
+    color: var(--navy-dark) !important;
+    padding: 0.5rem 1.25rem !important;
+    border-radius: 6px !important;
+    font-weight: 700 !important;
+    transition: background 0.2s, transform 0.15s !important;
+  }
+  .nav-cta:hover {
+    background: var(--teal-light) !important;
+    color: var(--navy-dark) !important;
+    transform: translateY(-1px);
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 5% 80px;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  /* diagonal line grid */
+  .hero-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(107,191,181,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(107,191,181,0.08) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse 70% 60% at 30% 50%, black 20%, transparent 80%);
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: -10%;
+    right: -5%;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(107,191,181,0.12) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    max-width: 760px;
+    z-index: 1;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--teal-dim);
+    border: 1px solid var(--teal-border);
+    color: var(--teal-light);
+    font-size: 0.72rem;
+    font-family: 'Fira Code', monospace;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.9rem;
+    border-radius: 3px;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(74,222,128,0); }
+  }
+
+  h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    color: var(--white-pure);
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  h1 .accent { color: var(--teal); }
+  h1 .thin { font-weight: 300; color: var(--muted); }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 560px;
+    margin: 0 auto 2.5rem;
+    font-weight: 300;
+    line-height: 1.75;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--teal);
+    color: var(--navy-dark);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.01em;
+    padding: 0.85rem 1.8rem;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(107,191,181,0.25);
+  }
+  .btn-primary:hover {
+    background: var(--teal-light);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(107,191,181,0.35);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: var(--white);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.85rem 1.8rem;
+    border-radius: 6px;
+    border: 1px solid var(--teal-border);
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-secondary:hover {
+    border-color: var(--teal);
+    background: var(--teal-dim);
+    color: var(--teal-light);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── SECTION HELPERS ─── */
+  section {
+    position: relative;
+    padding: 100px 5%;
+    z-index: 1;
+  }
+  .section-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 1rem;
+    opacity: 0.9;
+  }
+  .section-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 800;
+    color: var(--white-pure);
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin-bottom: 1.2rem;
+  }
+  .section-sub {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 500px;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* ─── WHAT WE OFFER ─── */
+  #oferta { background: rgba(14,10,60,0.7); }
+
+  .offer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 3.5rem;
+  }
+  .offer-card {
+    background: rgba(26,20,100,0.6);
+    padding: 2.2rem;
+    transition: background 0.25s;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    color: inherit;
+  }
+  .offer-card .offer-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 1.4rem;
+    font-size: 0.8rem;
+    font-family: 'Fira Code', monospace;
+    color: var(--teal);
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 0.25s, transform 0.25s;
+  }
+  .offer-card:hover .offer-arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .offer-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--teal), transparent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .offer-card:hover { background: rgba(30,24,117,0.9); }
+  .offer-card:hover::after { transform: scaleX(1); }
+  .offer-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--teal-dim);
+    border: 1px solid var(--teal-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.4rem;
+    color: var(--teal);
+    transition: background 0.25s, border-color 0.25s;
+  }
+  .offer-card:hover .offer-icon {
+    background: rgba(107,191,181,0.22);
+    border-color: rgba(107,191,181,0.45);
+  }
+  .offer-card h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--white-pure);
+    margin-bottom: 0.6rem;
+  }
+  .offer-card p {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .offer-tag {
+    display: inline-block;
+    margin-top: 1.2rem;
+    font-size: 0.68rem;
+    font-family: 'Fira Code', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--teal);
+    border: 1px solid var(--teal-border);
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+  }
+
+  /* ─── TEAM ─── */
+  #equipe { background: var(--navy-dark); }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+  .team-card {
+    background: rgba(26,20,100,0.55);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  }
+  .team-card:hover {
+    border-color: var(--teal-border);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(107,191,181,0.12);
+  }
+  .team-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+    filter: grayscale(15%) contrast(1.05) brightness(0.95);
+    transition: filter 0.3s;
+  }
+  .team-card:hover .team-img { filter: grayscale(0%) contrast(1.08); }
+  .team-info { padding: 1.4rem; }
+  .team-info h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--white-pure);
+    margin-bottom: 0.3rem;
+  }
+  .team-role {
+    font-size: 0.75rem;
+    color: var(--teal);
+    font-family: 'Fira Code', monospace;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.7rem;
+  }
+  .team-info p {
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  /* ─── CONSULTORIA ─── */
+  #consultoria { background: rgba(14,10,60,0.7); }
+
+  .consult-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: start;
+    margin-top: 3.5rem;
+  }
+  .consult-list { list-style: none; margin-top: 1.8rem; }
+  .consult-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+    color: var(--text);
+    transition: color 0.2s;
+  }
+  .consult-list li:hover { color: var(--white); }
+  .consult-list li:last-child { border-bottom: none; }
+  .check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border-radius: 50%;
+    background: var(--teal-dim);
+    border: 1.5px solid var(--teal);
+    color: var(--teal);
+    font-size: 0.65rem;
+    margin-top: 0.18rem;
+    flex-shrink: 0;
+  }
+
+  .consult-box {
+    background: rgba(26,20,100,0.7);
+    border: 1px solid var(--teal-border);
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 0 40px rgba(107,191,181,0.06);
+  }
+  .consult-box h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--white-pure);
+    margin-bottom: 0.5rem;
+  }
+  .consult-box p {
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin-bottom: 1.8rem;
+    line-height: 1.7;
+  }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: 'Fira Code', monospace;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    background: rgba(18,14,78,0.8);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    color: var(--white);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(107,191,181,0.1);
+  }
+  .form-group select option { background: var(--navy-dark); color: var(--white); }
+  .form-group textarea { resize: vertical; min-height: 90px; }
+
+  /* ─── SIMULATOR ─── */
+  #ferramentas { background: var(--navy-dark); }
+
+  .simulator {
+    background: rgba(26,20,100,0.55);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2.5rem;
+    margin-top: 2rem;
+  }
+  .sim-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--white-pure);
+    margin-bottom: 1.5rem;
+  }
+  .sim-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .sim-field label {
+    display: block;
+    font-size: 0.7rem;
+    font-family: 'Fira Code', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 0.35rem;
+  }
+  .sim-field input {
+    width: 100%;
+    background: rgba(18,14,78,0.8);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.6rem 0.85rem;
+    color: var(--white);
+    font-family: 'Fira Code', monospace;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .sim-field input:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(107,191,181,0.1);
+  }
+  .sim-result {
+    display: flex;
+    gap: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .sim-result-item { flex: 1; min-width: 130px; }
+  .sim-result-label {
+    font-size: 0.7rem;
+    font-family: 'Fira Code', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 0.35rem;
+  }
+  .sim-result-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--teal-light);
+  }
+
+  /* ─── TOOLS GRID ─── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  .tool-card {
+    background: rgba(26,20,100,0.55);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.25s, transform 0.25s;
+  }
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--teal), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .tool-card:hover { border-color: var(--teal-border); transform: translateY(-2px); }
+  .tool-card:hover::before { opacity: 1; }
+  .tool-card h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--white-pure);
+    margin-bottom: 0.5rem;
+  }
+  .tool-card p {
+    font-size: 0.975rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 1.2rem;
+  }
+  .tool-badge {
+    font-size: 0.68rem;
+    font-family: 'Fira Code', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(74,222,128,0.1);
+    color: var(--green);
+    border: 1px solid rgba(74,222,128,0.2);
+    padding: 0.2rem 0.55rem;
+    border-radius: 3px;
+  }
+  .tool-badge.soon {
+    background: var(--teal-dim);
+    color: var(--teal);
+    border-color: var(--teal-border);
+  }
+
+  /* ─── TESTIMONIALS ─── */
+  #depoimentos { background: rgba(14,10,60,0.7); }
+
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+  .testi-card {
+    background: rgba(26,20,100,0.6);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+  }
+  .testi-card::before {
+    content: '"';
+    position: absolute;
+    top: 1.2rem;
+    right: 1.5rem;
+    font-family: 'Outfit', sans-serif;
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--teal);
+    opacity: 0.15;
+    line-height: 1;
+  }
+  .testi-card:hover { border-color: var(--teal-border); transform: translateY(-2px); }
+  .testi-quote {
+    font-size: 1rem;
+    color: var(--text);
+    line-height: 1.75;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+  }
+  .testi-author { display: flex; align-items: center; gap: 0.75rem; }
+  .testi-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--teal-dim);
+    border: 1px solid var(--teal-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 0.8rem;
+    color: var(--teal-light);
+    flex-shrink: 0;
+  }
+  .testi-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--white-pure);
+  }
+  .testi-title-role {
+    font-size: 0.73rem;
+    color: var(--muted);
+    margin-top: 0.1rem;
+  }
+
+  /* ─── TELEGRAM CTA ─── */
+  #comunidade {
+    background: var(--navy-dark);
+    text-align: center;
+  }
+  .cta-box {
+    max-width: 600px;
+    margin: 0 auto;
+    background: rgba(26,20,100,0.6);
+    border: 1px solid var(--teal-border);
+    border-radius: 16px;
+    padding: 4rem 3rem;
+    box-shadow: 0 0 60px rgba(107,191,181,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(107,191,181,0.08), transparent);
+    pointer-events: none;
+  }
+  .cta-box p {
+    color: var(--muted);
+    margin: 1.2rem 0 2.5rem;
+    font-size: 1rem;
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+  }
+  .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+
+  /* ─── NEWSLETTER ─── */
+  #newsletter { background: rgba(14,10,60,0.7); }
+  .newsletter-inner {
+    display: flex;
+    gap: 4rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .newsletter-inner > div { flex: 1; min-width: 240px; }
+  .email-form { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; }
+  .email-form input {
+    flex: 1;
+    min-width: 220px;
+    background: rgba(18,14,78,0.8);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1.1rem;
+    color: var(--white);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .email-form input:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(107,191,181,0.1);
+  }
+  .email-form input::placeholder { color: var(--muted); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    background: var(--navy-dark);
+    border-top: 1px solid var(--border);
+    padding: 3rem 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .footer-logo {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    color: var(--white-pure);
+    text-decoration: none;
+  }
+  .footer-logo span { color: var(--teal); }
+  footer p {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+  .footer-links a {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--teal); }
+
+  /* ─── TEAL DIVIDER ─── */
+  .teal-line {
+    width: 40px;
+    height: 3px;
+    background: var(--teal);
+    border-radius: 2px;
+    margin-bottom: 1.5rem;
+    opacity: 0.7;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    nav { padding: 0 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 70px 1.5rem; }
+    .hero { padding: 110px 1.5rem 70px; }
+    .hero-stats { gap: 2rem; }
+    .consult-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+    .sim-row { grid-template-columns: 1fr; }
+    footer { flex-direction: column; text-align: center; }
+    .cta-box { padding: 2.5rem 1.5rem; }
+  }
+
+  /* ─── THANK YOU MODAL ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(10, 7, 50, 0.82);
+    backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: rgba(26, 20, 100, 0.95);
+    border: 1px solid var(--teal-border);
+    border-radius: 16px;
+    padding: 3rem 2.5rem;
+    max-width: 440px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(107,191,181,0.15);
+    animation: modalIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.88) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .modal-icon {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--teal-dim);
+    border: 2px solid var(--teal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+  .modal-box h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--white-pure);
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+  }
+  .modal-box p {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+  }
+  .modal-close {
+    background: var(--teal);
+    color: var(--navy-dark);
+    border: none;
+    border-radius: 6px;
+    padding: 0.75rem 2rem;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .modal-close:hover { background: var(--teal-light); transform: translateY(-1px); }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">HZ INVEST</a>
+  <ul class="nav-links">
+    <li><a href="#oferta">O que fazemos</a></li>
+    <li><a href="#equipe">Equipe</a></li>
+    <li><a href="#consultoria">Consultoria</a></li>
+    <li><a href="#ferramentas">Ferramentas</a></li>
+    <li><a href="#depoimentos">Depoimentos</a></li>
+    <li><a href="https://t.me/+uMdIiepcb-E0ZWIx" class="nav-cta" target="_blank">Entrar no Grupo</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Comunidade ativa no Telegram
+    </div>
+    <h1>
+      Finanças sérias.<br>
+      <span class="accent">Linguagem</span> direta.<br>
+      <span class="thin">Resultado real.</span>
+    </h1>
+    <p class="hero-sub">
+      Do básico ao avançado — educação financeira, acompanhamento de mercado e consultoria personalizada para brasileiros que levam dinheiro a sério.
+    </p>
+    <div class="hero-actions">
+      <a href="https://t.me/+uMdIiepcb-E0ZWIx" class="btn-primary" target="_blank">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        Entrar no Grupo — Gratuito
+      </a>
+      <a href="#consultoria" class="btn-secondary">
+        Falar com um especialista →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- O QUE FAZEMOS -->
+<section id="oferta">
+  <div class="reveal">
+    <div class="section-label">// o que fazemos</div>
+    <div class="teal-line"></div>
+    <h2 class="section-title">Uma plataforma completa<br>de educação financeira</h2>
+    <p class="section-sub">Conteúdo gratuito, ferramentas práticas e consultoria especializada — tudo no mesmo lugar.</p>
+  </div>
+  <div class="offer-grid reveal">
+    <a class="offer-card" href="https://t.me/+uMdIiepcb-E0ZWIx" target="_blank" style="text-decoration:none;display:block;">
+      <span class="offer-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+      </span>
+      <h3>Comunidade Telegram</h3>
+      <p>Acompanhe o mercado brasileiro e americano em tempo real. Notícias, análises e discussões com uma comunidade engajada e séria.</p>
+      <span class="offer-tag">100% gratuito →</span>
+    </a>
+    <a class="offer-card" href="cursos.html" style="text-decoration:none;display:block;">
+      <span class="offer-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/></svg>
+      </span>
+      <h3>Educação Financeira</h3>
+      <p>Comece do zero com cursos práticos e simples. Do orçamento pessoal aos primeiros investimentos — tudo explicado sem jargão.</p>
+      <span class="offer-tag">Ver cursos →</span>
+    </a>
+    <a class="offer-card" href="#consultoria" style="text-decoration:none;display:block;">
+      <span class="offer-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="2,20 5,17 8,15 11,11 14,7 17,4 20,2"/>
+          <polyline points="17,2 20,2 20,5"/>
+          <line x1="2" y1="20" x2="22" y2="20"/>
+        </svg>
+      </span>
+      <h3>Consultoria Personalizada</h3>
+      <p>Diagnóstico financeiro completo, planejamento de carteira e acompanhamento contínuo adaptado à sua realidade e objetivos.</p>
+      <span class="offer-tag">Agendar conversa →</span>
+    </a>
+    <a class="offer-card" href="#ferramentas" style="text-decoration:none;display:block;">
+      <span class="offer-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+      </span>
+      <h3>Ferramentas Financeiras</h3>
+      <p>Simuladores de investimento, calculadoras de juros compostos, planejadores de aposentadoria e mais. Grátis e direto no site.</p>
+      <span class="offer-tag">Explorar →</span>
+    </a>
+    <a class="offer-card" href="https://instagram.com/hzinvest" target="_blank" style="text-decoration:none;display:block;">
+      <span class="offer-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+      </span>
+      <h3>Conteúdo no Instagram</h3>
+      <p>Resumos do mercado, tradução de notícias econômicas e dicas práticas em formato visual. Salve e compartilhe com quem você quer bem.</p>
+      <span class="offer-tag">@hzinvest →</span>
+    </a>
+    <a class="offer-card" href="#newsletter" style="text-decoration:none;display:block;">
+      <span class="offer-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+      </span>
+      <h3>Newsletter Semanal</h3>
+      <p>Um resumo completo da semana nos mercados, direto no seu e-mail. Sem spam, sem enrolação — só o que importa para o seu bolso.</p>
+      <span class="offer-tag">Assinar →</span>
+    </a>
+  </div>
+</section>
+
+<!-- EQUIPE -->
+<section id="equipe">
+  <div class="reveal">
+    <div class="section-label">// quem somos</div>
+    <div class="teal-line"></div>
+    <h2 class="section-title">Especialistas por trás<br>do HZ Invest</h2>
+    <p class="section-sub">Uma equipe com formação sólida e experiência de mercado, comprometida com sua evolução financeira.</p>
+  </div>
+  <div class="team-grid reveal">
+    <div class="team-card">
+      <img class="team-img" src="https://framerusercontent.com/images/wpWGN1vCm63kL2EkTuzvVwC1EMk.jpeg" alt="Luiz Persechini">
+      <div class="team-info">
+        <h3>Luiz Persechini</h3>
+        <div class="team-role">Economista & Empreendedor</div>
+        <p>Com vasta experiência no mercado financeiro, traz perspectivas únicas sobre economia e empreendedorismo para o grupo.</p>
+      </div>
+    </div>
+    <div class="team-card">
+      <img class="team-img" src="https://framerusercontent.com/images/YWtaaqQjHLDgsPztXnVabrHlhM.jpeg" alt="Eduardo Horta">
+      <div class="team-info">
+        <h3>Eduardo Horta</h3>
+        <div class="team-role">Gestor de Investimentos</div>
+        <p>Conhecimento profundo em gestão de carteiras. Fornece insights valiosos para navegar o cenário de investimentos com segurança.</p>
+      </div>
+    </div>
+    <div class="team-card">
+      <img class="team-img" src="https://framerusercontent.com/images/0DlZ0kmXAutFyVmhsf2IzDVYA.jpeg" alt="Elisa Schulz">
+      <div class="team-info">
+        <h3>Elisa Schulz</h3>
+        <div class="team-role">Economista & Mestre em Finanças</div>
+        <p>Responsável pelos conteúdos diários. Une teoria e prática para tornar o mercado financeiro mais acessível e compreensível.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONSULTORIA -->
+<section id="consultoria">
+  <div class="reveal">
+    <div class="section-label">// consultoria</div>
+    <div class="teal-line"></div>
+    <h2 class="section-title">Seu dinheiro merece<br>atenção especializada</h2>
+    <p class="section-sub">Consultoria financeira personalizada com acompanhamento real — não é produto, é parceria.</p>
+  </div>
+  <div class="consult-layout reveal">
+    <div>
+      <ul class="consult-list">
+        <li><span class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Diagnóstico completo da sua situação financeira atual</li>
+        <li><span class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Planejamento de carteira alinhado ao seu perfil e objetivos</li>
+        <li><span class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Estratégias para reserva de emergência e proteção patrimonial</li>
+        <li><span class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Orientação sobre renda fixa, variável e fundos</li>
+        <li><span class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Acompanhamento contínuo com revisões periódicas</li>
+        <li><span class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Suporte direto por WhatsApp com os especialistas</li>
+        <li><span class="check"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Planejamento de aposentadoria e metas de longo prazo</li>
+      </ul>
+    </div>
+    <div class="consult-box">
+      <h3>Agendar uma conversa</h3>
+      <p>Preencha seus dados e entraremos em contato para uma primeira conversa sem compromisso. Totalmente gratuita.</p>
+      <form action="https://formsubmit.co/elisacmazzo@gmail.com" method="POST" style="display:contents">
+        <input type="hidden" name="_subject" value="Nova consulta — HZ Invest">
+        <input type="hidden" name="_captcha" value="false">
+        <div class="form-group">
+          <label>Seu nome</label>
+          <input type="text" name="nome" placeholder="Como você se chama?" required>
+        </div>
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" name="email" placeholder="seu@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>O que você busca?</label>
+          <select name="objetivo" required>
+            <option value="" disabled selected>Selecione uma opção</option>
+            <option>Organizar minha vida financeira</option>
+            <option>Começar a investir</option>
+            <option>Otimizar minha carteira atual</option>
+            <option>Planejamento de aposentadoria</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Mensagem (opcional)</label>
+          <textarea name="mensagem" placeholder="Conte um pouco sobre sua situação..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%; justify-content:center; border:none; cursor:pointer; font-size:0.95rem;">
+          Quero uma conversa gratuita →
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FERRAMENTAS -->
+<section id="ferramentas">
+  <div class="reveal">
+    <div class="section-label">// ferramentas</div>
+    <div class="teal-line"></div>
+    <h2 class="section-title">Simule, calcule<br>e planeje grátis</h2>
+    <p class="section-sub">Ferramentas práticas para visualizar o poder dos seus investimentos ao longo do tempo.</p>
+  </div>
+
+  <div class="simulator reveal">
+    <div class="sim-title">📈 Simulador de Juros Compostos</div>
+    <div class="sim-row">
+      <div class="sim-field">
+        <label>Aporte inicial (R$)</label>
+        <input type="number" id="sim-inicial" value="1000" oninput="calcSim()">
+      </div>
+      <div class="sim-field">
+        <label>Aporte mensal (R$)</label>
+        <input type="number" id="sim-mensal" value="500" oninput="calcSim()">
+      </div>
+      <div class="sim-field">
+        <label>Taxa anual (%)</label>
+        <input type="number" id="sim-taxa" value="12" step="0.1" oninput="calcSim()">
+      </div>
+      <div class="sim-field">
+        <label>Período (anos)</label>
+        <input type="number" id="sim-anos" value="10" oninput="calcSim()">
+      </div>
+      <div class="sim-field">
+        <label>Inflação anual (%)</label>
+        <input type="number" id="sim-inflacao" value="4.5" step="0.1" oninput="calcSim()">
+      </div>
+    </div>
+    <div class="sim-result">
+      <div class="sim-result-item">
+        <div class="sim-result-label">Total investido</div>
+        <div class="sim-result-val" id="res-investido">—</div>
+      </div>
+      <div class="sim-result-item">
+        <div class="sim-result-label">Valor final bruto</div>
+        <div class="sim-result-val" id="res-final">—</div>
+      </div>
+      <div class="sim-result-item">
+        <div class="sim-result-label">Ganho em juros</div>
+        <div class="sim-result-val" id="res-juros">—</div>
+      </div>
+      <div class="sim-result-item">
+        <div class="sim-result-label">Valor real (inflação)</div>
+        <div class="sim-result-val" id="res-real">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tools-grid reveal">
+    <div class="tool-card">
+      <h3>Calculadora de FIRE</h3>
+      <p>Descubra quanto você precisa acumular para viver de renda e em quantos anos pode alcançar a independência financeira.</p>
+      <span class="tool-badge soon">Em breve</span>
+    </div>
+    <div class="tool-card">
+      <h3>Comparador de Investimentos</h3>
+      <p>Compare CDB, LCI, LCA, Tesouro Direto e ações lado a lado com rentabilidade líquida já descontando IR e inflação.</p>
+      <span class="tool-badge soon">Em breve</span>
+    </div>
+    <div class="tool-card">
+      <h3>Planilha de Orçamento</h3>
+      <p>Template mensal para mapear receitas, despesas e metas de poupança. Baixe gratuitamente e comece hoje.</p>
+      <span class="tool-badge soon">Em breve</span>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="depoimentos">
+  <div class="reveal">
+    <div class="section-label">// depoimentos</div>
+    <div class="teal-line"></div>
+    <h2 class="section-title">Quem faz parte<br>e adora</h2>
+  </div>
+  <div class="testi-grid reveal">
+    <div class="testi-card">
+      <p class="testi-quote">"Gosto muito de como o grupo consegue me manter atualizada, mesmo nos dias mais corridos. Os resumos são objetivos e bem explicados, e consigo acompanhar o que está acontecendo no Brasil e lá fora."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">RO</div>
+        <div>
+          <div class="testi-name">Renata O.</div>
+          <div class="testi-title-role">Designer · São Paulo</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <p class="testi-quote">"O que mais me chama atenção é a disponibilidade com que respondem às dúvidas. Sempre que pergunto, recebo uma explicação clara e completa, o que me dá mais confiança para tomar decisões nos meus investimentos."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">LM</div>
+        <div>
+          <div class="testi-name">Lucas M.</div>
+          <div class="testi-title-role">Advogado · Belo Horizonte</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <p class="testi-quote">"O HZ Invest vai muito além de conteúdo: é um espaço onde posso trocar ideias, ouvir outras perspectivas e discutir estratégias com pessoas sérias e interessadas em aprender. Essa troca é muito valiosa."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">TR</div>
+        <div>
+          <div class="testi-name">Thiago R.</div>
+          <div class="testi-title-role">Programador · Porto Alegre</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TELEGRAM CTA -->
+<section id="comunidade">
+  <div class="cta-box reveal">
+    <div class="section-label" style="position:relative;z-index:1;">// comunidade</div>
+    <h2 class="section-title" style="position:relative;z-index:1;">Pronto para levar<br>seu dinheiro a sério?</h2>
+    <p>Entre no grupo gratuito do Telegram agora e comece a acompanhar o mercado com quem entende do assunto.</p>
+    <div class="cta-actions">
+      <a href="https://t.me/+uMdIiepcb-E0ZWIx" class="btn-primary" target="_blank">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        Entrar no Telegram — Grátis
+      </a>
+      <a href="#consultoria" class="btn-secondary">Falar com especialista</a>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section id="newsletter">
+  <div class="newsletter-inner reveal">
+    <div>
+      <div class="section-label">// newsletter</div>
+      <div class="teal-line"></div>
+      <h2 class="section-title" style="font-size:1.9rem;">A semana financeira<br>no seu e-mail</h2>
+      <p class="section-sub">Toda sexta, um resumo do que moveu os mercados. Sem spam. Cancele quando quiser.</p>
+    </div>
+    <div>
+      <div class="email-form">
+        <input type="email" placeholder="seu@email.com">
+        <button class="btn-primary" style="border:none; cursor:pointer; white-space:nowrap;" onclick="alert('Newsletter em breve! Enquanto isso, entre no nosso grupo do Telegram.')">Quero receber →</button>
+      </div>
+      <p style="font-size:0.75rem; color: var(--muted); margin-top:0.75rem;">Seus dados estão seguros. Sem spam, prometemos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">HZ<span>.</span>Invest</a>
+  <p>© 2025 HZ Invest · Todos os direitos reservados</p>
+  <div class="footer-links">
+    <a href="https://t.me/+uMdIiepcb-E0ZWIx" target="_blank">Telegram</a>
+    <a href="#" target="_blank">Instagram</a>
+    <a href="#consultoria">Consultoria</a>
+    <a href="#ferramentas">Ferramentas</a>
+  </div>
+</footer>
+
+<!-- THANK YOU MODAL -->
+<div class="modal-overlay" id="modalObrigado">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+        <polyline points="4,12 9,17 20,6" stroke="#6bbfb5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h3>Mensagem enviada!</h3>
+    <p>Obrigado pelo seu contato. Recebemos as suas informações e entraremos em contato em breve para agendar a sua conversa gratuita.<br><br>Enquanto isso, fique à vontade para explorar o nosso conteúdo no Telegram e no Instagram. 😊</p>
+    <button class="modal-close" onclick="document.getElementById('modalObrigado').classList.remove('active')">Fechar</button>
+  </div>
+</div>
+
+<script>
+  // ─── SCROLL REVEAL ───
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => observer.observe(el));
+
+  // ─── FORM INTERCEPT → MODAL ───
+  const consultForm = document.querySelector('#consultoria form');
+  if (consultForm) {
+    consultForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const data = new FormData(this);
+      try {
+        await fetch(this.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } });
+      } catch(_) {}
+      this.reset();
+      document.getElementById('modalObrigado').classList.add('active');
+    });
+  }
+
+  // close modal on overlay click
+  document.getElementById('modalObrigado').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('active');
+  });
+
+  // ─── SIMULATOR ───
+  function fmt(n) {
+    return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function calcSim() {
+    const P  = parseFloat(document.getElementById('sim-inicial').value)  || 0;
+    const M  = parseFloat(document.getElementById('sim-mensal').value)   || 0;
+    const r  = (parseFloat(document.getElementById('sim-taxa').value)    || 0) / 100;
+    const n  = (parseInt(document.getElementById('sim-anos').value)      || 0) * 12;
+    const ri = (parseFloat(document.getElementById('sim-inflacao').value)|| 0) / 100;
+
+    const rm = Math.pow(1 + r, 1/12) - 1;
+    let total = P * Math.pow(1 + rm, n);
+    if (rm > 0) total += M * (Math.pow(1 + rm, n) - 1) / rm;
+    else total += M * n;
+
+    const investido = P + M * n;
+    const juros = total - investido;
+    const realFactor = Math.pow(1 + ri, -(parseInt(document.getElementById('sim-anos').value) || 0));
+    const real = total * realFactor;
+
+    document.getElementById('res-investido').textContent = fmt(investido);
+    document.getElementById('res-final').textContent     = fmt(total);
+    document.getElementById('res-juros').textContent     = fmt(juros);
+    document.getElementById('res-real').textContent      = fmt(real);
+  }
+  calcSim();
+
+  // ─── NAV ACTIVE HIGHLIGHT ───
+  const navLinks = document.querySelectorAll('.nav-links a:not(.nav-cta)');
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY + 100;
+    document.querySelectorAll('section[id]').forEach(sec => {
+      if (y >= sec.offsetTop && y < sec.offsetTop + sec.offsetHeight) {
+        navLinks.forEach(a => {
+          a.style.color = a.getAttribute('href') === '#' + sec.id ? 'var(--teal-light)' : '';
+        });
+      }
+    });
+  });
+</script>
+</body>
+</html>
