@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HZ Invest — Entrar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy-dark:   #120e4e;
+    --navy-mid:    #1e1875;
+    --teal:        #6bbfb5;
+    --teal-light:  #8dd4cb;
+    --teal-dim:    rgba(107,191,181,0.14);
+    --teal-border: rgba(107,191,181,0.25);
+    --white-pure:  #ffffff;
+    --muted:       rgba(196,193,230,0.55);
+    --text:        rgba(220,218,245,0.88);
+    --border:      rgba(107,191,181,0.12);
+    --green:       #4ade80;
+    --red:         #f87171;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy-dark);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 10%, rgba(107,191,181,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 85% 90%, rgba(107,191,181,0.06) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: radial-gradient(circle, rgba(107,191,181,0.15) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, black 0%, transparent 80%);
+    pointer-events: none; z-index: 0; opacity: 0.28;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: relative; z-index: 10;
+    padding: 0 5%; height: 70px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(18,14,78,0.5);
+    backdrop-filter: blur(16px);
+  }
+  .nav-logo {
+    font-family: 'Outfit', sans-serif; font-weight: 900;
+    font-size: 1.35rem; color: var(--white-pure);
+    text-decoration: none; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .nav-back {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    color: var(--teal); text-decoration: none;
+    font-size: 0.875rem; font-weight: 600;
+    transition: color 0.2s;
+  }
+  .nav-back:hover { color: var(--teal-light); }
+
+  /* ─── CENTER WRAPPER ─── */
+  .auth-wrap {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 3rem 1.5rem;
+    position: relative; z-index: 1;
+  }
+
+  /* ─── CARD ─── */
+  .auth-card {
+    width: 100%; max-width: 440px;
+    background: rgba(26,20,100,0.75);
+    border: 1px solid var(--teal-border);
+    border-radius: 16px;
+    padding: 2.8rem 2.5rem;
+    box-shadow: 0 0 60px rgba(107,191,181,0.1);
+  }
+
+  .auth-logo-area {
+    text-align: center; margin-bottom: 2rem;
+  }
+  .auth-logo-area .logo-text {
+    font-family: 'Outfit', sans-serif; font-weight: 900;
+    font-size: 1.5rem; color: var(--white-pure);
+    letter-spacing: 0.05em; text-transform: uppercase;
+    display: block; margin-bottom: 0.3rem;
+  }
+  .auth-logo-area p {
+    font-size: 0.85rem; color: var(--muted);
+    font-family: 'Fira Code', monospace; letter-spacing: 0.04em;
+  }
+
+  /* ─── TABS ─── */
+  .auth-tabs {
+    display: flex; margin-bottom: 2rem;
+    background: rgba(18,14,78,0.6);
+    border-radius: 8px; padding: 4px; gap: 4px;
+  }
+  .tab-btn {
+    flex: 1; padding: 0.6rem;
+    background: transparent; border: none;
+    font-family: 'Outfit', sans-serif; font-weight: 600;
+    font-size: 0.88rem; color: var(--muted);
+    border-radius: 6px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--teal); color: var(--navy-dark);
+  }
+
+  /* ─── FORMS ─── */
+  .auth-form { display: none; }
+  .auth-form.active { display: block; }
+
+  .form-group { margin-bottom: 1.1rem; }
+  .form-group label {
+    display: block; font-size: 0.7rem; color: var(--muted);
+    margin-bottom: 0.4rem; text-transform: uppercase;
+    letter-spacing: 0.08em; font-family: 'Fira Code', monospace;
+  }
+  .form-group input {
+    width: 100%;
+    background: rgba(18,14,78,0.8);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.8rem 1rem; color: var(--white-pure);
+    font-family: 'Outfit', sans-serif; font-size: 0.95rem;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group input:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(107,191,181,0.12);
+  }
+  .form-group input::placeholder { color: var(--muted); }
+
+  .btn-submit {
+    width: 100%; padding: 0.9rem;
+    background: var(--teal); color: var(--navy-dark);
+    font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 1rem;
+    border: none; border-radius: 8px; cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(107,191,181,0.3);
+    margin-top: 0.5rem;
+  }
+  .btn-submit:hover {
+    background: var(--teal-light); transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(107,191,181,0.4);
+  }
+  .btn-submit:disabled {
+    opacity: 0.6; cursor: not-allowed; transform: none;
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin: 1.4rem 0;
+    font-size: 0.72rem; color: var(--muted);
+    font-family: 'Fira Code', monospace;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* ─── GOOGLE BUTTON ─── */
+  .btn-google {
+    width: 100%; padding: 0.8rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: 'Outfit', sans-serif;
+    font-weight: 600; font-size: 0.9rem;
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 0.6rem;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .btn-google:hover {
+    background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);
+    color: var(--white-pure);
+  }
+
+  /* ─── FEEDBACK MESSAGES ─── */
+  .auth-msg {
+    display: none; padding: 0.75rem 1rem;
+    border-radius: 8px; font-size: 0.85rem;
+    margin-bottom: 1rem; line-height: 1.5;
+  }
+  .auth-msg.error {
+    display: block;
+    background: rgba(248,113,113,0.12);
+    border: 1px solid rgba(248,113,113,0.3);
+    color: var(--red);
+  }
+  .auth-msg.success {
+    display: block;
+    background: rgba(74,222,128,0.12);
+    border: 1px solid rgba(74,222,128,0.3);
+    color: var(--green);
+  }
+
+  /* ─── RESET PASSWORD LINK ─── */
+  .forgot-link {
+    display: block; text-align: right; margin-top: -0.5rem;
+    margin-bottom: 1rem; font-size: 0.78rem;
+    color: var(--teal); text-decoration: none;
+    font-family: 'Fira Code', monospace;
+    transition: color 0.2s;
+  }
+  .forgot-link:hover { color: var(--teal-light); }
+
+  /* ─── LOADING SPINNER ─── */
+  .spinner {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid rgba(18,14,78,0.4);
+    border-top-color: var(--navy-dark);
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+    vertical-align: middle; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── TERMS NOTE ─── */
+  .terms-note {
+    text-align: center; font-size: 0.72rem;
+    color: var(--muted); margin-top: 1.2rem;
+    line-height: 1.6;
+  }
+
+  footer {
+    position: relative; z-index: 1;
+    text-align: center; padding: 1.5rem;
+    font-size: 0.75rem; color: var(--muted);
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 480px) {
+    .auth-card { padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">HZ INVEST</a>
+  <a href="index.html" class="nav-back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    Voltar ao site
+  </a>
+</nav>
+
+<div class="auth-wrap">
+  <div class="auth-card">
+
+    <div class="auth-logo-area">
+      <span class="logo-text">HZ INVEST</span>
+      <p>// acesso à plataforma de cursos</p>
+    </div>
+
+    <!-- TABS -->
+    <div class="auth-tabs">
+      <button class="tab-btn active" onclick="switchTab('login')">Entrar</button>
+      <button class="tab-btn" onclick="switchTab('signup')">Criar conta</button>
+    </div>
+
+    <!-- ── LOGIN FORM ── -->
+    <div class="auth-form active" id="form-login">
+      <div class="auth-msg" id="login-msg"></div>
+
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <a href="#" class="forgot-link" onclick="showReset(); return false;">Esqueci minha senha</a>
+
+      <button class="btn-submit" id="btn-login" onclick="doLogin()">Entrar</button>
+
+      <div class="divider">ou</div>
+
+      <button class="btn-google" onclick="doGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continuar com Google
+      </button>
+
+      <p class="terms-note">
+        Ao entrar, você concorda com os nossos<br>
+        <a href="#" style="color:var(--teal)">Termos de Uso</a> e <a href="#" style="color:var(--teal)">Política de Privacidade</a>.
+      </p>
+    </div>
+
+    <!-- ── SIGNUP FORM ── -->
+    <div class="auth-form" id="form-signup">
+      <div class="auth-msg" id="signup-msg"></div>
+
+      <div class="form-group">
+        <label>Nome completo</label>
+        <input type="text" id="signup-name" placeholder="Seu nome" autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="signup-email" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="signup-password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label>Confirmar senha</label>
+        <input type="password" id="signup-confirm" placeholder="Repita a senha" autocomplete="new-password">
+      </div>
+
+      <button class="btn-submit" id="btn-signup" onclick="doSignup()">Criar minha conta</button>
+
+      <div class="divider">ou</div>
+
+      <button class="btn-google" onclick="doGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continuar com Google
+      </button>
+
+      <p class="terms-note">
+        Ao criar conta, você concorda com os nossos<br>
+        <a href="#" style="color:var(--teal)">Termos de Uso</a> e <a href="#" style="color:var(--teal)">Política de Privacidade</a>.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<footer>© 2025 HZ Invest · Todos os direitos reservados</footer>
+
+<script type="module">
+  import { auth, onAuthStateChanged, signOut,
+           signInWithEmailAndPassword, createUserWithEmailAndPassword,
+           signInWithPopup, GoogleAuthProvider,
+           sendPasswordResetEmail, updateProfile } from './auth.js';
+
+  // ── expose functions to onclick= attributes ───
+  window.switchTab     = switchTab;
+  window.doLogin       = doLogin;
+  window.doSignup      = doSignup;
+  window.doGoogleLogin = doGoogleLogin;
+  window.showReset     = showReset;
+
+  // ── TAB SWITCHER ─────────────────────────────
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b,i) =>
+      b.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='signup')));
+    document.getElementById('form-login').classList.toggle('active',  tab === 'login');
+    document.getElementById('form-signup').classList.toggle('active', tab === 'signup');
+  }
+
+  // ── MESSAGES & LOADING ────────────────────────
+  function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'auth-msg ' + type;
+  }
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.innerHTML = loading ? '<span class="spinner"></span> Aguarde...' : btn.dataset.label;
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('btn-login').dataset.label  = 'Entrar';
+    document.getElementById('btn-signup').dataset.label = 'Criar minha conta';
+  });
+
+  // ── LOGIN ─────────────────────────────────────
+  function doLogin() {
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    if (!email || !password) { showMsg('login-msg', 'Preencha e-mail e senha.', 'error'); return; }
+    setLoading('btn-login', true);
+    signInWithEmailAndPassword(auth, email, password)
+      .then(handleAuthSuccess)
+      .catch(err => { setLoading('btn-login', false); showMsg('login-msg', friendlyError(err.code), 'error'); });
+  }
+
+  // ── SIGNUP ────────────────────────────────────
+  function doSignup() {
+    const name    = document.getElementById('signup-name').value.trim();
+    const email   = document.getElementById('signup-email').value.trim();
+    const pass    = document.getElementById('signup-password').value;
+    const confirm = document.getElementById('signup-confirm').value;
+    if (!name || !email || !pass) { showMsg('signup-msg', 'Preencha todos os campos.', 'error'); return; }
+    if (pass.length < 6)          { showMsg('signup-msg', 'A senha deve ter pelo menos 6 caracteres.', 'error'); return; }
+    if (pass !== confirm)         { showMsg('signup-msg', 'As senhas não coincidem.', 'error'); return; }
+    setLoading('btn-signup', true);
+    createUserWithEmailAndPassword(auth, email, pass)
+      .then(cred => updateProfile(cred.user, { displayName: name }))
+      .then(handleAuthSuccess)
+      .catch(err => { setLoading('btn-signup', false); showMsg('signup-msg', friendlyError(err.code), 'error'); });
+  }
+
+  // ── GOOGLE ────────────────────────────────────
+  function doGoogleLogin() {
+    signInWithPopup(auth, new GoogleAuthProvider())
+      .then(handleAuthSuccess)
+      .catch(err => showMsg('login-msg', friendlyError(err.code), 'error'));
+  }
+
+  // ── RESET PASSWORD ────────────────────────────
+  function showReset() {
+    const email = document.getElementById('login-email').value.trim();
+    if (!email) { showMsg('login-msg', 'Digite seu e-mail acima primeiro.', 'error'); return; }
+    sendPasswordResetEmail(auth, email)
+      .then(() => showMsg('login-msg', 'E-mail de recuperação enviado! Verifique sua caixa de entrada.', 'success'))
+      .catch(err => showMsg('login-msg', friendlyError(err.code), 'error'));
+  }
+
+  // ── REDIRECT IF ALREADY LOGGED IN ────────────
+  function handleAuthSuccess() {
+    const dest = sessionStorage.getItem('hz_redirect') || 'cursos.html';
+    sessionStorage.removeItem('hz_redirect');
+    window.location.href = dest;
+  }
+  onAuthStateChanged(auth, user => { if (user) handleAuthSuccess(); });
+
+  // ── ENTER KEY ────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    document.getElementById('form-login').classList.contains('active') ? doLogin() : doSignup();
+  });
+
+  // ── ERROR MESSAGES IN PORTUGUESE ─────────────
+  function friendlyError(code) {
+    const map = {
+      'auth/user-not-found':        'Nenhuma conta encontrada com este e-mail.',
+      'auth/wrong-password':        'Senha incorreta. Tente novamente.',
+      'auth/invalid-credential':    'E-mail ou senha incorretos.',
+      'auth/invalid-email':         'E-mail inválido.',
+      'auth/email-already-in-use':  'Este e-mail já está cadastrado. Faça login.',
+      'auth/weak-password':         'Use pelo menos 6 caracteres na senha.',
+      'auth/too-many-requests':     'Muitas tentativas. Aguarde alguns minutos.',
+      'auth/network-request-failed':'Erro de conexão. Verifique sua internet.',
+      'auth/popup-closed-by-user':  'Login com Google cancelado.',
+    };
+    return map[code] || 'Ocorreu um erro. Tente novamente.';
+  }
+</script>
+</body>
+</html>
