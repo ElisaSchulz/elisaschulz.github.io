@@ -501,196 +501,63 @@
   <p>Cursos simples, diretos e práticos para quem está começando. Nada de jargão — só o que você precisa saber para tomar decisões melhores com o seu dinheiro.</p>
 </div>
 
-<!-- FILTER TABS -->
-<div class="filters">
-  <button class="filter-btn active" onclick="filterCourses('todos', this)">Todos</button>
-  <button class="filter-btn" onclick="filterCourses('iniciante', this)">Iniciante</button>
-  <button class="filter-btn" onclick="filterCourses('investimentos', this)">Investimentos</button>
-  <button class="filter-btn" onclick="filterCourses('planejamento', this)">Planejamento</button>
-  <button class="filter-btn" onclick="filterCourses('gratuito', this)">Gratuitos</button>
-</div>
-
 <!-- COURSES GRID -->
 <div class="courses-section">
   <div class="courses-grid" id="coursesGrid">
 
+    <!-- 1: Dinheiro 101 -->
     <div class="course-card reveal" data-tags="iniciante gratuito">
       <div class="course-thumb thumb-teal">
         <div class="course-badges">
           <span class="badge badge-free">Gratuito</span>
-          <span class="badge badge-new">Novo</span>
         </div>
         <span style="position:relative;z-index:2;">💰</span>
       </div>
       <div class="course-body">
         <div class="course-level">Iniciante · Módulo 1</div>
         <div class="course-title">Dinheiro 101: Como Organizar Sua Vida Financeira</div>
-        <div class="course-desc">Aprenda a mapear receitas e despesas, montar um orçamento realista e criar uma reserva de emergência — do zero, sem mistério.</div>
-        <div class="course-meta">
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            3h 20min
-          </span>
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            1.240 alunos
-          </span>
-          <span class="stars">★★★★★</span>
-        </div>
+        <div class="course-desc">Orçamento, reserva de emergência e primeiros passos — do zero, sem mistério e sem jargão.</div>
         <div class="course-footer">
           <span class="course-price free">Grátis</span>
-          <a href="dinheiro101.html" class="btn-course">Ver detalhes →</a>
+          <span class="btn-course" style="opacity:0.5;cursor:default;border-color:var(--border);color:var(--muted);">Em breve</span>
         </div>
       </div>
     </div>
 
-    <!-- 2 -->
-    <div class="course-card reveal" data-tags="iniciante investimentos" onclick="window.location='rendafixa.html'" style="cursor:pointer;">
+    <!-- 2: Renda Fixa -->
+    <div class="course-card reveal" data-tags="iniciante investimentos">
       <div class="course-thumb thumb-blue">
         <div class="course-badges">
-          <span class="badge badge-popular">Popular</span>
+          <span class="badge badge-free">Gratuito</span>
         </div>
         <span style="position:relative;z-index:2;">📈</span>
       </div>
       <div class="course-body">
         <div class="course-level">Iniciante · Módulo 2</div>
         <div class="course-title">Meu Primeiro Investimento: Renda Fixa sem Medo</div>
-        <div class="course-desc">CDB, Tesouro Direto, LCI e LCA explicados de forma simples. Você vai entender onde colocar o dinheiro e por quê — com segurança.</div>
-        <div class="course-meta">
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            4h 10min
-          </span>
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            2.870 alunos
-          </span>
-          <span class="stars">★★★★★</span>
-        </div>
+        <div class="course-desc">CDB, Tesouro Direto, LCI e LCA explicados sem complicação. Você vai entender onde colocar o dinheiro e por quê.</div>
         <div class="course-footer">
-          <span class="course-price">R$ 47</span>
-          <a href="rendafixa.html" class="btn-course">Ver detalhes →</a>
+          <span class="course-price free">Grátis</span>
+          <span class="btn-course" style="opacity:0.5;cursor:default;border-color:var(--border);color:var(--muted);">Em breve</span>
         </div>
       </div>
     </div>
 
-    <!-- 3 -->
-    <div class="course-card reveal" data-tags="iniciante gratuito" onclick="window.location='sairdovermelho.html'" style="cursor:pointer;">
+    <!-- 3: Sair do Vermelho -->
+    <div class="course-card reveal" data-tags="iniciante gratuito">
       <div class="course-thumb thumb-purple">
         <div class="course-badges">
           <span class="badge badge-free">Gratuito</span>
-          <span class="badge badge-new">Novo</span>
         </div>
         <span style="position:relative;z-index:2;">🎯</span>
       </div>
       <div class="course-body">
-        <div class="course-level">Iniciante · Finanças Pessoais</div>
+        <div class="course-level">Iniciante · Módulo 3</div>
         <div class="course-title">Sair do Vermelho: Entenda e Elimine Suas Dívidas</div>
         <div class="course-desc">Dívida no cartão, cheque especial, nome sujo — diagnóstico, plano e ferramentas para sair do vermelho de vez.</div>
-        <div class="course-meta">
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            2h 05min
-          </span>
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            980 alunos
-          </span>
-          <span class="stars">★★★★☆</span>
-        </div>
         <div class="course-footer">
           <span class="course-price free">Grátis</span>
-          <a href="sairdovermelho.html" class="btn-course">Ver detalhes →</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4 -->
-    <div class="course-card reveal" data-tags="investimentos">
-      <div class="course-thumb thumb-green">
-        <div class="course-badges">
-          <span class="badge badge-new">Novo</span>
-        </div>
-        <span style="position:relative;z-index:2;">🏠</span>
-      </div>
-      <div class="course-body">
-        <div class="course-level">Iniciante · Investimentos</div>
-        <div class="course-title">FIIs: Invista em Imóveis com Pouco Dinheiro</div>
-        <div class="course-desc">Fundos de Investimento Imobiliário do zero. O que são, como escolher, como analisar e como começar a investir com R$ 100.</div>
-        <div class="course-meta">
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            5h 30min
-          </span>
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            1.560 alunos
-          </span>
-          <span class="stars">★★★★★</span>
-        </div>
-        <div class="course-footer">
-          <span class="course-price">R$ 67</span>
-          <a href="#" class="btn-course">Ver detalhes →</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- 5 -->
-    <div class="course-card reveal" data-tags="planejamento">
-      <div class="course-thumb thumb-amber">
-        <div class="course-badges">
-          <span class="badge badge-popular">Popular</span>
-        </div>
-        <span style="position:relative;z-index:2;">🏖️</span>
-      </div>
-      <div class="course-body">
-        <div class="course-level">Iniciante · Planejamento</div>
-        <div class="course-title">Aposentadoria sem Surpresas: Planeje com Antecedência</div>
-        <div class="course-desc">Entenda o INSS, a previdência privada (PGBL e VGBL), e como montar uma estratégia de longo prazo independentemente da sua idade.</div>
-        <div class="course-meta">
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            4h 45min
-          </span>
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            3.120 alunos
-          </span>
-          <span class="stars">★★★★★</span>
-        </div>
-        <div class="course-footer">
-          <span class="course-price">R$ 89</span>
-          <a href="#" class="btn-course">Ver detalhes →</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- 6 -->
-    <div class="course-card reveal" data-tags="investimentos gratuito">
-      <div class="course-thumb thumb-red">
-        <div class="course-badges">
-          <span class="badge badge-free">Gratuito</span>
-        </div>
-        <span style="position:relative;z-index:2;">📊</span>
-      </div>
-      <div class="course-body">
-        <div class="course-level">Iniciante · Investimentos</div>
-        <div class="course-title">Ações na Bolsa: Desmistificando a Renda Variável</div>
-        <div class="course-desc">O que é a B3, como funciona uma ação, como abrir conta numa corretora e por que a renda variável não é tão assustadora quanto parece.</div>
-        <div class="course-meta">
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            3h 50min
-          </span>
-          <span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            2.010 alunos
-          </span>
-          <span class="stars">★★★★☆</span>
-        </div>
-        <div class="course-footer">
-          <span class="course-price free">Grátis</span>
-          <a href="#" class="btn-course" style="opacity:0.5;cursor:default;">Em breve →</a>
+          <span class="btn-course" style="opacity:0.5;cursor:default;border-color:var(--border);color:var(--muted);">Em breve</span>
         </div>
       </div>
     </div>
