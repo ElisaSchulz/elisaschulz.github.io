@@ -875,6 +875,12 @@
     .sim-row { grid-template-columns: 1fr; }
     footer { flex-direction: column; text-align: center; }
     .cta-box { padding: 2.5rem 1.5rem; }
+    /* Ticker mobile: taller to avoid content being cut */
+    .ticker-bar { height: 80px; }
+    .ticker-bar .tradingview-widget-container,
+    .ticker-bar .tradingview-widget-container__widget { height: 80px !important; }
+    .ticker-bar .tradingview-widget-container { height: 80px; }
+    .hero { padding-top: calc(110px + 80px) !important; }
   }
 
   /* ─── THANK YOU MODAL ─── */
