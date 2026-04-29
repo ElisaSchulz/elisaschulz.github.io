@@ -123,6 +123,70 @@
     transform: translateY(-1px);
   }
 
+
+  /* ─── HAMBURGER MENU (mobile) ─── */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px;
+    z-index: 200;
+  }
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--white-pure);
+    border-radius: 2px;
+    transition: all 0.3s;
+    transform-origin: center;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    top: 70px; left: 0; right: 0;
+    background: rgba(18,14,78,0.98);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    z-index: 99;
+    padding: 1.5rem 2rem;
+    flex-direction: column;
+    gap: 0;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a, .mobile-menu .mobile-pill {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: color 0.2s;
+    display: block;
+  }
+  .mobile-menu a:hover { color: var(--white-pure); }
+  .mobile-menu a:last-child { border-bottom: none; }
+  .mobile-menu .mobile-cta {
+    margin-top: 1rem;
+    background: var(--teal);
+    color: var(--navy-dark) !important;
+    text-align: center;
+    padding: 0.85rem !important;
+    border-radius: 8px;
+    font-weight: 700 !important;
+    border-bottom: none !important;
+  }
+
   /* ─── HERO ─── */
   .hero {
     position: relative;
@@ -868,6 +932,7 @@
   @media (max-width: 768px) {
     nav { padding: 0 1.5rem; }
     .nav-links { display: none; }
+    .hamburger { display: flex; }
     section { padding: 70px 6%; }
     .hero { padding: 110px 6% 70px; }
     .hero-stats { gap: 2rem; }
@@ -1074,7 +1139,23 @@
     <li><a href="https://t.me/+uMdIiepcb-E0ZWIx" class="nav-cta" target="_blank">Entrar no Grupo</a></li>
     <li><div id="nav-user-pill"></div></li>
   </ul>
+  <!-- Hamburger (mobile only) -->
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#oferta" onclick="closeMenu()">O que fazemos</a>
+  <a href="#cursos" onclick="closeMenu()">Cursos</a>
+  <a href="#equipe" onclick="closeMenu()">Equipe</a>
+  <a href="#consultoria" onclick="closeMenu()">Consultoria</a>
+  <a href="#ferramentas" onclick="closeMenu()">Ferramentas</a>
+  <a href="#depoimentos" onclick="closeMenu()">Depoimentos</a>
+  <div id="mobile-user-pill" style="padding:.85rem 0;border-bottom:1px solid var(--border);"></div>
+  <a href="https://t.me/+uMdIiepcb-E0ZWIx" class="mobile-cta" target="_blank" onclick="closeMenu()">Entrar no Grupo</a>
+</div>
 
 <!-- HERO -->
 <section class="hero" id="inicio">
@@ -1592,6 +1673,37 @@
 
 
 <script>
+// ── HAMBURGER MENU ────────────────────────────────────────────────────────────
+function toggleMenu() {
+  const btn  = document.getElementById('hamburger');
+  const menu = document.getElementById('mobileMenu');
+  btn.classList.toggle('open');
+  menu.classList.toggle('open');
+}
+function closeMenu() {
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('mobileMenu').classList.remove('open');
+}
+
+// ── TICKER HEIGHT ON MOBILE ────────────────────────────────────────────────────
+(function() {
+  function fixTickerHeight() {
+    const isMobile = window.innerWidth <= 768;
+    const h = isMobile ? '80px' : '46px';
+    const bar = document.querySelector('.ticker-bar');
+    const container = document.querySelector('.ticker-bar .tradingview-widget-container');
+    const widget    = document.querySelector('.ticker-bar .tradingview-widget-container__widget');
+    if (bar)       bar.style.height = h;
+    if (container) container.style.height = h;
+    if (widget)    widget.style.height = h;
+    // Adjust hero top padding
+    const hero = document.querySelector('.hero');
+    if (hero) hero.style.paddingTop = isMobile ? 'calc(110px + 80px)' : 'calc(120px + 46px)';
+  }
+  fixTickerHeight();
+  window.addEventListener('resize', fixTickerHeight);
+})();
+
 // ── HIDE NAV + TICKER ON SCROLL DOWN, SHOW ON SCROLL UP ──────────────────────
 (function() {
   let lastY = 0;
