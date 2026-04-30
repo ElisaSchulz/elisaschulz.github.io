@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EH Investimentos — Portal do Cliente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --navy:       #0D1E4E;
+      --navy-dark:  #081537;
+      --navy-mid:   #122460;
+      --gold:       #D4820A;
+      --gold-light: #E8A030;
+      --gold-pale:  rgba(212,130,10,0.12);
+      --white:      #FFFFFF;
+      --gray:       #8A9BB8;
+      --gray-light: #C8D4E8;
+      --border:     rgba(212,130,10,0.2);
+      --border-dim: rgba(138,155,184,0.15);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Montserrat', sans-serif; background: var(--navy-dark); color: var(--white); min-height: 100vh; }
+
+    /* AUTH GUARD */
+    #authGuard { position: fixed; inset: 0; background: var(--navy-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    .spinner { width: 28px; height: 28px; border: 3px solid rgba(212,130,10,0.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(8,21,55,0.92); backdrop-filter: blur(12px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .modal-box { background: var(--navy); border: 1px solid var(--border); padding: 3rem; width: 100%; max-width: 440px; }
+    .modal-tag { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--gold); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; }
+    .modal-tag::before { content: ''; display: block; width: 20px; height: 1px; background: var(--gold); }
+    .modal-box h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; margin-bottom: 0.5rem; }
+    .modal-box p { font-size: 0.82rem; color: var(--gray-light); font-weight: 300; line-height: 1.6; margin-bottom: 1.8rem; }
+    .modal-field { margin-bottom: 1rem; }
+    .modal-field label { display: block; font-size: 0.62rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gray); margin-bottom: 0.4rem; }
+    .modal-field input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(138,155,184,0.25); color: var(--white); font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 300; padding: 0.85rem 1rem; outline: none; transition: border-color 0.2s; }
+    .modal-field input:focus { border-color: var(--gold); }
+    .modal-field input::placeholder { color: rgba(138,155,184,0.5); }
+    .modal-error { font-size: 0.75rem; color: #f08080; background: rgba(224,85,85,0.1); border: 1px solid rgba(224,85,85,0.3); padding: 0.6rem 0.8rem; margin-bottom: 1rem; display: none; }
+    .modal-error.show { display: block; }
+
+    /* SIDEBAR */
+    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 240px; background: rgba(8,21,55,0.97); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 2rem 0; z-index: 100; }
+    .sidebar-logo { display: flex; align-items: center; gap: 0.8rem; padding: 0 1.8rem 2rem; border-bottom: 1px solid var(--border-dim); margin-bottom: 1.5rem; text-decoration: none; }
+    .sidebar-logo-text span:first-child { display: block; font-weight: 700; font-size: 0.78rem; letter-spacing: 0.1em; color: var(--white); }
+    .sidebar-logo-text span:last-child { display: block; font-weight: 300; font-size: 0.58rem; letter-spacing: 0.2em; color: var(--gray); text-transform: uppercase; }
+    .sidebar-section { padding: 0 1rem; margin-bottom: 0.3rem; }
+    .sidebar-section-label { font-size: 0.58rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(138,155,184,0.5); padding: 0 0.8rem; margin-bottom: 0.5rem; }
+    .sidebar-link { display: flex; align-items: center; gap: 0.8rem; padding: 0.65rem 0.8rem; font-size: 0.78rem; font-weight: 400; color: var(--gray); text-decoration: none; transition: background 0.15s, color 0.15s; cursor: pointer; background: none; border: none; width: 100%; text-align: left; font-family: 'Montserrat', sans-serif; }
+    .sidebar-link:hover { background: rgba(212,130,10,0.08); color: var(--gray-light); }
+    .sidebar-link.active { background: var(--gold-pale); color: var(--white); }
+    .sidebar-link svg { flex-shrink: 0; color: rgba(138,155,184,0.6); }
+    .sidebar-link.active svg, .sidebar-link:hover svg { color: var(--gold); }
+    .sidebar-bottom { margin-top: auto; padding: 0 1rem; border-top: 1px solid var(--border-dim); padding-top: 1.2rem; }
+    .sidebar-user { display: flex; align-items: center; gap: 0.7rem; padding: 0 0.8rem; margin-bottom: 0.8rem; }
+    .user-avatar { width: 32px; height: 32px; background: var(--gold-pale); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 600; color: var(--gold); flex-shrink: 0; }
+    .user-name { font-size: 0.75rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-email { font-size: 0.62rem; color: var(--gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* MAIN */
+    .main { margin-left: 240px; min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 2.5rem; border-bottom: 1px solid var(--border-dim); background: rgba(8,21,55,0.7); position: sticky; top: 0; z-index: 50; }
+    .topbar-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 400; }
+    .topbar-date { font-size: 0.7rem; color: var(--gray); font-weight: 300; }
+    .content { padding: 2.5rem; flex: 1; }
+
+    /* VIEWS */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* WELCOME */
+    .welcome-banner { background: linear-gradient(135deg, var(--navy-mid), var(--navy)); border: 1px solid var(--border); padding: 2rem 2.5rem; margin-bottom: 2rem; position: relative; overflow: hidden; }
+    .welcome-banner::before { content: ''; position: absolute; right: -60px; top: -60px; width: 180px; height: 180px; border-radius: 50%; border: 1px solid rgba(212,130,10,0.1); }
+    .welcome-banner h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300; margin-bottom: 0.4rem; }
+    .welcome-banner h2 em { font-style: italic; color: var(--gold-light); }
+    .welcome-banner p { font-size: 0.82rem; color: var(--gray-light); font-weight: 300; }
+
+    /* STATS */
+    .stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border-dim); border: 1px solid var(--border-dim); margin-bottom: 2rem; }
+    .stat-card { background: var(--navy-dark); padding: 1.5rem 1.8rem; }
+    .stat-label { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gray); margin-bottom: 0.5rem; }
+    .stat-value { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 400; line-height: 1; }
+    .stat-value.gold { color: var(--gold-light); }
+
+    /* SECTION */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 400; display: flex; align-items: center; gap: 0.6rem; }
+    .section-title::before { content: ''; display: block; width: 3px; height: 18px; background: var(--gold); }
+
+    /* REPORTS */
+    .reports-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 1px; background: var(--border-dim); border: 1px solid var(--border-dim); }
+    .report-card { background: var(--navy-dark); padding: 1.6rem; display: flex; flex-direction: column; gap: 1rem; transition: background 0.2s; position: relative; overflow: hidden; }
+    .report-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: linear-gradient(to bottom,var(--gold),transparent); transform: scaleY(0); transition: transform 0.3s; transform-origin: top; }
+    .report-card:hover { background: rgba(18,36,96,0.6); }
+    .report-card:hover::before { transform: scaleY(1); }
+    .report-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.8rem; }
+    .report-icon { width: 40px; height: 40px; background: var(--gold-pale); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--gold); }
+    .report-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.25rem 0.6rem; background: rgba(212,130,10,0.12); border: 1px solid var(--border); color: var(--gold); }
+    .report-name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; line-height: 1.3; }
+    .report-meta { font-size: 0.68rem; color: var(--gray); font-weight: 300; display: flex; align-items: center; gap: 0.4rem; }
+    .report-download { display: flex; align-items: center; gap: 0.5rem; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); text-decoration: none; transition: color 0.2s; padding-top: 0.8rem; border-top: 1px solid var(--border-dim); }
+    .report-download:hover { color: var(--gold-light); }
+    .empty-state { grid-column: 1/-1; background: var(--navy-dark); padding: 4rem 2rem; text-align: center; }
+    .empty-state p { font-size: 0.85rem; color: var(--gray); font-weight: 300; line-height: 1.7; margin-top: 1rem; }
+    .loading-state { display: flex; align-items: center; justify-content: center; gap: 0.8rem; padding: 3rem; color: var(--gray); font-size: 0.8rem; grid-column: 1/-1; }
+
+    /* FILTER */
+    .filter-bar { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+    .filter-btn { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.4rem 0.9rem; background: none; border: 1px solid var(--border-dim); color: var(--gray); cursor: pointer; font-family: 'Montserrat', sans-serif; transition: all 0.2s; }
+    .filter-btn:hover { border-color: var(--gold); color: var(--gray-light); }
+    .filter-btn.active { background: var(--gold-pale); border-color: var(--gold); color: var(--white); }
+
+    /* UPLOAD */
+    .upload-panel { background: rgba(18,36,96,0.4); border: 1px solid var(--border); padding: 2rem; margin-bottom: 2rem; }
+    .upload-panel h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+    .upload-panel h3 svg { color: var(--gold); }
+    .upload-form { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; }
+    .upload-field label { display: block; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gray); margin-bottom: 0.4rem; }
+    .upload-field input, .upload-field select { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border-dim); color: var(--white); font-family: 'Montserrat', sans-serif; font-size: 0.78rem; padding: 0.65rem 0.9rem; outline: none; transition: border-color 0.2s; }
+    .upload-field input:focus, .upload-field select:focus { border-color: var(--gold); }
+    .upload-field select option { background: var(--navy); }
+    .drop-zone { border: 1px dashed rgba(212,130,10,0.35); padding: 1.5rem; text-align: center; cursor: pointer; transition: background 0.2s, border-color 0.2s; margin-top: 0.8rem; position: relative; }
+    .drop-zone:hover { background: var(--gold-pale); border-color: var(--gold); }
+    .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .drop-zone-label { font-size: 0.75rem; color: var(--gray); pointer-events: none; }
+    .drop-zone-label span { color: var(--gold); font-weight: 500; }
+    .selected-file { font-size: 0.72rem; color: var(--gold-light); margin-top: 0.5rem; font-weight: 500; }
+    .btn-upload { background: var(--gold); color: var(--navy-dark); font-family: 'Montserrat', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 0.65rem 1.4rem; border: none; cursor: pointer; transition: background 0.2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .btn-upload:hover { background: var(--gold-light); }
+    .btn-upload:disabled { opacity: 0.5; cursor: not-allowed; }
+    .upload-feedback { font-size: 0.75rem; padding: 0.6rem 0.8rem; margin-top: 0.8rem; display: none; }
+    .upload-feedback.success { background: rgba(85,160,85,0.1); border: 1px solid rgba(85,160,85,0.3); color: #80c080; display: block; }
+    .upload-feedback.error { background: rgba(224,85,85,0.1); border: 1px solid rgba(224,85,85,0.3); color: #f08080; display: block; }
+    .upload-progress { height: 2px; background: var(--border-dim); margin-top: 0.8rem; display: none; }
+    .upload-progress-bar { height: 100%; background: linear-gradient(to right,var(--gold),var(--gold-light)); width: 0%; transition: width 0.3s; }
+
+    /* EMAIL */
+    .email-tabs { display: flex; border-bottom: 1px solid var(--border-dim); margin-bottom: 2rem; }
+    .email-tab { display: flex; align-items: center; gap: 0.5rem; padding: 0.8rem 1.5rem; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: 'Montserrat', sans-serif; transition: color 0.2s, border-color 0.2s; margin-bottom: -1px; }
+    .email-tab:hover { color: var(--gray-light); }
+    .email-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+    .email-tab-content { display: none; }
+    .email-tab-content.active { display: block; }
+    #clientsTable { width: 100%; border-collapse: collapse; }
+    #clientsTable th { text-align: left; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gray); padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); }
+    #clientsTable td { padding: 0.4rem 0.5rem; vertical-align: middle; border-bottom: 1px solid rgba(138,155,184,0.08); }
+    #clientsTable input { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(138,155,184,0.2); color: var(--white); font-family: 'Montserrat', sans-serif; font-size: 0.78rem; padding: 0.5rem 0.7rem; outline: none; transition: border-color 0.2s; }
+    #clientsTable input:focus { border-color: var(--gold); }
+    .badge-acima { font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem; background: rgba(76,175,130,0.15); color: #4caf82; border: 1px solid rgba(76,175,130,0.3); }
+    .badge-abaixo { font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.5rem; background: rgba(224,85,85,0.15); color: #e05555; border: 1px solid rgba(224,85,85,0.3); }
+    .paste-zone { border: 1px dashed rgba(212,130,10,0.35); padding: 1.2rem 1.5rem; margin-bottom: 1rem; cursor: pointer; transition: background 0.2s, border-color 0.2s; text-align: center; outline: none; }
+    .paste-zone:focus, .paste-zone:hover { background: rgba(212,130,10,0.07); border-color: var(--gold); }
+    .preview-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border-dim); padding: 1.5rem; margin-bottom: 1rem; }
+    .preview-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border-dim); }
+    .preview-meta { font-size: 0.72rem; color: var(--gray); line-height: 1.6; }
+    .preview-meta strong { color: var(--white); }
+    .preview-body { font-size: 0.82rem; color: var(--gray-light); line-height: 1.8; white-space: pre-wrap; }
+
+    /* ── MOBILE NAV ── */
+    .mobile-nav {
+      display: none;
+      position: fixed; top: 0; left: 0; right: 0;
+      background: rgba(8,21,55,0.97);
+      border-bottom: 1px solid var(--border);
+      z-index: 200;
+      padding: 0.9rem 1.2rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .mobile-nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .mobile-nav-logo span { font-weight: 700; font-size: 0.78rem; letter-spacing: 0.08em; color: var(--white); }
+    .hamburger {
+      background: none; border: none; cursor: pointer; padding: 0.3rem;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .hamburger span { display: block; width: 22px; height: 2px; background: var(--white); transition: all 0.25s; border-radius: 2px; }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-drawer {
+      display: none;
+      position: fixed; inset: 0; top: 56px;
+      background: rgba(8,21,55,0.98);
+      z-index: 190;
+      padding: 1.5rem 1.2rem;
+      flex-direction: column;
+      gap: 0.3rem;
+      overflow-y: auto;
+    }
+    .mobile-drawer.open { display: flex; }
+    .mobile-drawer-section { font-size: 0.58rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(138,155,184,0.5); padding: 0.8rem 0.8rem 0.4rem; }
+    .mobile-drawer-link { display: flex; align-items: center; gap: 0.8rem; padding: 0.85rem 0.8rem; font-size: 0.85rem; color: var(--gray-light); background: none; border: none; width: 100%; text-align: left; font-family: 'Montserrat', sans-serif; cursor: pointer; border-radius: 2px; }
+    .mobile-drawer-link:hover, .mobile-drawer-link.active { background: var(--gold-pale); color: var(--white); }
+    .mobile-drawer-link svg { color: var(--gold); flex-shrink: 0; }
+    .mobile-drawer-divider { height: 1px; background: var(--border-dim); margin: 0.8rem 0; }
+
+
+    /* ── EXTRATOS ── */
+    .broker-selector { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border-dim); border:1px solid var(--border-dim); margin-bottom:2rem; }
+    .broker-btn { padding:1.2rem 1.5rem; background:var(--navy-dark); cursor:pointer; transition:background 0.2s; font-family:'Montserrat',sans-serif; border:none; text-align:left; }
+    .broker-btn:hover { background:rgba(212,130,10,0.08); }
+    .broker-btn.active { background:var(--gold-pale); border-bottom:2px solid var(--gold); }
+    .broker-btn-name { font-size:0.9rem; font-weight:600; color:var(--white); display:block; margin-bottom:0.2rem; }
+    .broker-btn.active .broker-btn-name { color:var(--gold-light); }
+    .broker-btn-sub { font-size:0.65rem; font-weight:400; letter-spacing:0.1em; text-transform:uppercase; color:var(--gray); }
+
+    .extrato-upload-zone { border:1px dashed rgba(212,130,10,0.35); padding:2rem; text-align:center; cursor:pointer; transition:background 0.2s, border-color 0.2s; position:relative; }
+    .extrato-upload-zone:hover, .extrato-upload-zone.drag-over { background:var(--gold-pale); border-color:var(--gold); }
+    .extrato-upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+
+    .file-list-ext { display:flex; flex-direction:column; gap:0.5rem; margin-top:0.8rem; }
+    .file-item-ext { display:flex; align-items:center; gap:0.8rem; background:rgba(76,175,130,0.08); border:1px solid rgba(76,175,130,0.25); padding:0.6rem 1rem; }
+    .file-item-ext-name { font-size:0.78rem; color:var(--gray-light); flex:1; }
+    .file-item-ext-status { font-size:0.68rem; font-weight:600; }
+    .file-status-ok { color:#4caf82; }
+    .file-status-err { color:#e05555; }
+    .file-status-wait { color:var(--gray); }
+
+    .mapping-toolbar-ext { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.8rem; flex-wrap:wrap; gap:0.5rem; }
+    .save-indicator-ext { font-size:0.68rem; color:var(--gray); display:flex; align-items:center; gap:0.5rem; }
+    .save-dot { width:8px; height:8px; border-radius:50%; background:var(--border-dim); flex-shrink:0; transition:background 0.3s; }
+    .save-dot.saved { background:#4caf82; }
+    .save-dot.unsaved { background:var(--gold); }
+
+    .mapping-table-ext { width:100%; border-collapse:collapse; font-size:0.78rem; }
+    .mapping-table-ext th { text-align:left; font-size:0.6rem; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--gray); padding:0.5rem 0.8rem; border-bottom:1px solid var(--border); background:rgba(0,0,0,0.2); }
+    .mapping-table-ext td { padding:0.35rem 0.5rem; border-bottom:1px solid rgba(138,155,184,0.08); vertical-align:middle; }
+    .mapping-table-ext input { width:100%; background:rgba(255,255,255,0.03); border:1px solid transparent; color:var(--white); font-family:'Montserrat',sans-serif; font-size:0.75rem; padding:0.3rem 0.5rem; outline:none; transition:border-color 0.2s; }
+    .mapping-table-ext input:focus { border-color:var(--gold); background:rgba(212,130,10,0.05); }
+    .mapping-table-ext input::placeholder { color:rgba(138,155,184,0.4); }
+
+    .ext-progress-wrap { display:none; margin-top:0.8rem; }
+    .ext-progress-wrap.visible { display:block; }
+    .ext-progress-bar { height:3px; background:var(--border-dim); }
+    .ext-progress-fill { height:100%; background:linear-gradient(to right, var(--gold), var(--gold-light)); width:0%; transition:width 0.3s; }
+    .ext-progress-label { font-size:0.68rem; color:var(--gray); margin-top:0.4rem; }
+
+    .ext-status-box { display:none; background:rgba(0,0,0,0.3); border:1px solid var(--border-dim); padding:1rem 1.2rem; margin-top:1rem; font-size:0.72rem; line-height:1.9; color:var(--gray); max-height:200px; overflow-y:auto; font-family:monospace; }
+    .ext-status-box.visible { display:block; }
+    .ext-log-ok { color:#4caf82; }
+    .ext-log-warn { color:var(--gold-light); }
+    .ext-log-err { color:#e05555; }
+    .ext-log-head { color:var(--white); font-weight:600; margin-top:0.3rem; }
+
+    .ext-preview-section { display:none; margin-top:2rem; }
+    .ext-preview-section.visible { display:block; }
+    .ext-chips { display:flex; gap:0.8rem; flex-wrap:wrap; margin:1rem 0; }
+    .ext-chip { background:rgba(255,255,255,0.04); border:1px solid var(--border-dim); border-radius:20px; padding:0.3rem 0.9rem; font-size:0.7rem; color:var(--gray); }
+    .ext-chip span { color:var(--white); font-weight:600; margin-left:0.3rem; }
+    .ext-preview-wrap { overflow-x:auto; border:1px solid var(--border-dim); max-height:360px; overflow-y:auto; }
+    .ext-preview-table { width:100%; border-collapse:collapse; font-size:0.72rem; }
+    .ext-preview-table th { background:var(--navy-mid); color:var(--gold-light); font-size:0.6rem; letter-spacing:0.1em; text-transform:uppercase; padding:0.6rem 0.9rem; text-align:left; white-space:nowrap; position:sticky; top:0; font-weight:400; }
+    .ext-preview-table td { padding:0.45rem 0.9rem; border-bottom:1px solid rgba(138,155,184,0.08); white-space:nowrap; }
+    .ext-preview-table tr:nth-child(even) td { background:rgba(255,255,255,0.02); }
+    .td-neg { color:#e05555; } .td-pos { color:#4caf82; }
+    .td-cnpj { color:var(--gold); font-weight:500; }
+    .td-na { color:var(--gray); }
+    .td-sheet { color:#6a9fd8; font-weight:500; }
+    .eqi-notice-dash { background:rgba(100,150,255,0.08); border:1px solid rgba(100,150,255,0.25); padding:0.8rem 1.2rem; font-size:0.78rem; color:var(--gray-light); line-height:1.6; display:none; margin-bottom:1rem; }
+    .eqi-notice-dash.visible { display:block; }
+    .btn-process-ext {
+      width:100%; padding:1rem 2rem; background:var(--gold); color:var(--navy-dark);
+      border:none; font-family:'Montserrat',sans-serif; font-size:0.75rem; font-weight:700;
+      letter-spacing:0.14em; text-transform:uppercase; cursor:pointer; margin-top:1.5rem;
+      transition:background 0.2s, transform 0.15s; display:flex; align-items:center; justify-content:center; gap:0.6rem;
+    }
+    .btn-process-ext:hover:not(:disabled) { background:var(--gold-light); transform:translateY(-1px); }
+    .btn-process-ext:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+    .btn-download-ext {
+      margin-top:1rem; padding:0.8rem 1.8rem; background:var(--navy-mid); color:var(--gold-light);
+      border:1px solid var(--border); font-family:'Montserrat',sans-serif; font-size:0.72rem; font-weight:600;
+      letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; display:inline-flex; align-items:center; gap:0.6rem;
+      transition:background 0.2s;
+    }
+    .btn-download-ext:hover { background:var(--navy); }
+
+
+    /* ── ONBOARDING BANNER ── */
+    .ob-banner {
+      background: linear-gradient(135deg, rgba(212,130,10,0.12), rgba(212,130,10,0.06));
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+    .ob-banner.visible { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .ob-banner-text { font-size: 0.82rem; color: var(--gray-light); font-weight: 300; line-height: 1.6; }
+    .ob-banner-text strong { color: var(--white); display: block; margin-bottom: 0.2rem; font-size: 0.88rem; }
+    .ob-banner-steps { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .ob-step-chip {
+      font-size: 0.62rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.2rem 0.6rem; border-radius: 20px;
+    }
+    .ob-step-chip.done { background: rgba(76,175,130,0.15); color: #4caf82; border: 1px solid rgba(76,175,130,0.3); }
+    .ob-step-chip.pending { background: rgba(138,155,184,0.1); color: var(--gray); border: 1px solid var(--border-dim); }
+    .ob-banner-btn {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 0.6rem 1.2rem; background: var(--gold); color: var(--navy-dark);
+      border: none; cursor: pointer; font-family: 'Montserrat', sans-serif;
+      white-space: nowrap; transition: background 0.2s;
+    }
+    .ob-banner-btn:hover { background: var(--gold-light); }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .mobile-nav { display: flex; }
+      .main { margin-left: 0; padding-top: 56px; }
+      .topbar { display: none; }
+      .content { padding: 1.5rem 1rem; }
+      .upload-form { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .reports-grid { grid-template-columns: 1fr; }
+      .welcome-banner { padding: 1.5rem; }
+      .welcome-banner h2 { font-size: 1.4rem; }
+      .upload-panel { padding: 1.2rem; }
+      .email-tabs { overflow-x: auto; }
+      .email-tab { white-space: nowrap; padding: 0.7rem 1rem; font-size: 0.65rem; }
+      #clientsTable { font-size: 0.72rem; }
+      #clientsTable input { font-size: 0.72rem; padding: 0.4rem 0.5rem; }
+    }
+
+    @media (max-width: 500px) {
+      .stats-row { grid-template-columns: 1fr; }
+      .content { padding: 1rem 0.8rem; }
+      .welcome-banner { padding: 1.2rem; }
+      .modal-box { padding: 2rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="authGuard"><div class="spinner"></div></div>
+
+<div class="modal-overlay" id="setPasswordModal" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-tag">Acesso</div>
+    <h2 id="modalTitle">Crie sua senha</h2>
+    <p id="modalDesc">Bem-vindo! Defina seu nome e uma senha para acessar o Portal do Cliente.</p>
+    <div id="nameField">
+      <div class="modal-field"><label>Seu nome completo</label><input type="text" id="newUserName" placeholder="Ex: João Silva" /></div>
+    </div>
+    <div class="modal-field"><label>Nova senha</label><input type="password" id="newPassword" placeholder="Mínimo 6 caracteres" /></div>
+    <div class="modal-field"><label>Confirmar senha</label><input type="password" id="confirmPassword" placeholder="Repita a senha" /></div>
+    <div class="modal-error" id="modalError"></div>
+    <button class="btn-upload" onclick="doSetPassword()" style="width:100%;justify-content:center;padding:1rem;margin-top:0.5rem;">Salvar e Entrar</button>
+  </div>
+</div>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav">
+  <a href="index.html" class="mobile-nav-logo">
+    <img src="Logo_EH.png" width="28" height="28" alt="EH" style="object-fit:contain;" />
+    <span>EH INVESTIMENTOS</span>
+  </a>
+  <button class="hamburger" id="hamburger" onclick="toggleDrawer()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE DRAWER -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="mobile-drawer-section">Menu</div>
+  <button class="mobile-drawer-link active" onclick="showView('relatorios',this);closeDrawer()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Relatórios
+  </button>
+  <button class="mobile-drawer-link" onclick="showView('cartas',this);closeDrawer()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    Cartas Mensais
+  </button>
+  <div class="mobile-drawer-divider" id="mobileAdminDivider" style="display:none;"></div>
+  <div class="mobile-drawer-section" id="mobileAdminSection" style="display:none;">Administração</div>
+  <button class="mobile-drawer-link" id="mobileUploadBtn" style="display:none;" onclick="showView('upload',this);closeDrawer()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    Upload de Relatório
+  </button>
+  <button class="mobile-drawer-link" id="mobileExtratosBtn" style="display:none;" onclick="showView('extratos',this);closeDrawer()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 017 7h2"/><path d="M15 7h2a5 5 0 010 10h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Extratos → Excel
+  </button>
+  <button class="mobile-drawer-link" id="mobileClientesBtn" style="display:none;" onclick="showView('clientes',this);closeDrawer()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    Clientes
+  </button>
+  <button class="mobile-drawer-link" id="mobileEmailsBtn" style="display:none;" onclick="showView('emails',this);closeDrawer()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    Envio de Emails
+  </button>
+  <div class="mobile-drawer-divider"></div>
+  <div style="padding:0.8rem;">
+    <div style="font-size:0.78rem;font-weight:500;color:var(--white);" id="mobileUserName">...</div>
+    <div style="font-size:0.68rem;color:var(--gray);margin-top:0.2rem;" id="mobileUserEmail">...</div>
+  </div>
+  <button class="mobile-drawer-link" onclick="doLogout()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Sair
+  </button>
+</div>
+
+<aside class="sidebar">
+  <a href="index.html" class="sidebar-logo">
+    <img src="Logo_EH.png" width="32" height="32" alt="EH" style="object-fit:contain;" />
+    <div class="sidebar-logo-text"><span>EH INVESTIMENTOS</span><span>Portal do Cliente</span></div>
+  </a>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Menu</div>
+    <button class="sidebar-link active" onclick="showView('relatorios',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Relatórios
+    </button>
+    <button class="sidebar-link" onclick="showView('cartas',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Cartas Mensais
+    </button>
+  </div>
+  <div class="sidebar-section" id="adminMenuSection" style="display:none;">
+    <div class="sidebar-section-label">Administração</div>
+    <button class="sidebar-link" onclick="showView('upload',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Upload de Relatório
+    </button>
+    <button class="sidebar-link" onclick="showView('extratos',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 017 7h2"/><path d="M15 7h2a5 5 0 010 10h-2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Extratos → Excel
+    </button>
+    <button class="sidebar-link" onclick="showView('emails',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Envio de Emails
+    </button>
+    <button class="sidebar-link" onclick="showView('clientes',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Clientes
+    </button>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="sidebar-user">
+      <div class="user-avatar" id="userAvatar">—</div>
+      <div><div class="user-name" id="userName">...</div><div class="user-email" id="userEmail">...</div></div>
+    </div>
+    <button class="sidebar-link" onclick="doLogout()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sair
+    </button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">Relatórios</div>
+    <div class="topbar-date" id="topbarDate"></div>
+  </div>
+  <div class="content">
+
+    <!-- RELATÓRIOS -->
+    <div class="view active" id="view-relatorios">
+      <!-- Onboarding banner -->
+      <div class="ob-banner" id="obBanner">
+        <div class="ob-banner-text">
+          <strong>⚠️ Complete seu cadastro</strong>
+          Você ainda tem etapas pendentes para ativar seu acesso completo ao portal.
+          <div class="ob-banner-steps" id="obBannerSteps"></div>
+        </div>
+        <button class="ob-banner-btn" onclick="window.location.href='eh-onboarding.html'">Continuar cadastro →</button>
+      </div>
+
+      <div class="welcome-banner">
+        <h2>Bem-vindo, <em id="welcomeName">Cliente</em></h2>
+        <p>Acesse seus relatórios e acompanhe a evolução do seu patrimônio.</p>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Relatórios Disponíveis</div><div class="stat-value gold" id="statCount">—</div></div>
+        <div class="stat-card"><div class="stat-label">Último Relatório</div><div class="stat-value" id="statLatest" style="font-size:1.1rem;">—</div></div>
+        <div class="stat-card"><div class="stat-label">Gestor</div><div class="stat-value" style="font-size:1.1rem;">Eduardo Horta</div></div>
+      </div>
+      <div class="section-header"><div class="section-title">Seus Relatórios</div></div>
+      <div class="filter-bar" id="filterBar"></div>
+      <div class="reports-grid" id="reportsGrid"><div class="loading-state"><div class="spinner"></div> Carregando...</div></div>
+    </div>
+
+    <!-- CARTAS -->
+    <div class="view" id="view-cartas">
+      <div class="welcome-banner"><h2>Cartas <em>Mensais</em></h2><p>Comunicados mensais da EH Investimentos.</p></div>
+      <div class="section-header"><div class="section-title">Cartas Publicadas</div></div>
+      <div class="reports-grid" id="cartasGrid"><div class="loading-state"><div class="spinner"></div> Carregando...</div></div>
+    </div>
+
+    <!-- UPLOAD -->
+    <div class="view" id="view-upload">
+      <div class="upload-panel">
+        <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Publicar Novo Relatório</h3>
+        <div class="upload-form">
+          <div class="upload-field"><label>Nome do Relatório</label><input type="text" id="reportName" placeholder="Ex: Relatório Mensal — Janeiro 2025" /></div>
+          <div class="upload-field"><label>Mês / Período</label><input type="text" id="reportPeriod" placeholder="Ex: Janeiro 2025" /></div>
+          <div class="upload-field"><label>Tipo</label>
+            <select id="reportType">
+              <option value="Relatório Mensal">Relatório Mensal</option>
+              <option value="Relatório Trimestral">Relatório Trimestral</option>
+              <option value="Relatório Anual">Relatório Anual</option>
+              <option value="Carta Mensal">Carta Mensal</option>
+              <option value="Especial">Especial</option>
+            </select>
+          </div>
+          <div class="upload-field" style="grid-column:1/-1;"><label>Destinatário</label>
+            <select id="reportRecipient"><option value="">Todos os clientes</option></select>
+          </div>
+        </div>
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="fileInput" accept=".pdf,.xlsx,.docx" onchange="onFileSelect(event)" />
+          <div class="drop-zone-label">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);margin-bottom:0.4rem;display:block;margin-left:auto;margin-right:auto;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Clique ou arraste</span> o arquivo aqui (PDF, Excel ou Word)
+          </div>
+          <div class="selected-file" id="selectedFileName"></div>
+        </div>
+        <div class="upload-progress" id="uploadProgress"><div class="upload-progress-bar" id="uploadProgressBar"></div></div>
+        <div style="margin-top:1rem;">
+          <button class="btn-upload" id="uploadBtn" onclick="doUpload()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Publicar Relatório
+          </button>
+        </div>
+        <div class="upload-feedback" id="uploadFeedback"></div>
+      </div>
+      <div class="section-header"><div class="section-title">Relatórios Publicados</div></div>
+      <div class="reports-grid" id="adminReportsGrid"><div class="loading-state"><div class="spinner"></div> Carregando...</div></div>
+    </div>
+
+    <!-- CLIENTES (admin) -->
+    <div class="view" id="view-clientes">
+      <div class="welcome-banner">
+        <h2>Gestão de <em>Clientes</em></h2>
+        <p>Acompanhe o onboarding de cada cliente e gerencie os cadastros.</p>
+      </div>
+      <div class="section-header">
+        <div class="section-title">Status de Onboarding</div>
+        <div style="display:flex;gap:0.6rem;">
+          <button class="btn-upload" onclick="markAllOnboardingComplete()" style="background:rgba(76,175,130,0.15);color:#4caf82;border:1px solid rgba(76,175,130,0.3);font-size:0.62rem;">
+            ✓ Marcar todos como concluído
+          </button>
+        </div>
+      </div>
+      <div id="clientesGrid" style="display:flex;flex-direction:column;gap:1px;background:var(--border-dim);border:1px solid var(--border-dim);">
+        <div class="loading-state"><div class="spinner"></div> Carregando clientes...</div>
+      </div>
+      <div class="upload-feedback" id="clientesFb"></div>
+    </div>
+
+    <!-- EMAILS -->
+    <div class="view" id="view-emails">
+      <div class="email-tabs">
+        <button class="email-tab active" onclick="switchEmailTab('templates',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Templates do Mês
+        </button>
+        <button class="email-tab" onclick="switchEmailTab('disparar',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Disparar Emails
+        </button>
+      </div>
+      <div class="email-tab-content active" id="tab-templates">
+        <div class="upload-panel">
+          <h3>Templates do Mês</h3>
+          <p style="font-size:0.8rem;color:var(--gray);margin-bottom:1rem;line-height:1.7;">
+            Use <code style="background:rgba(212,130,10,0.15);color:var(--gold);padding:0.1rem 0.4rem;">{{nome}}</code>,
+            <code style="background:rgba(212,130,10,0.15);color:var(--gold);padding:0.1rem 0.4rem;">{{desempenho}}</code>,
+            <code style="background:rgba(212,130,10,0.15);color:var(--gold);padding:0.1rem 0.4rem;">{{valor}}</code>,
+            <code style="background:rgba(212,130,10,0.15);color:var(--gold);padding:0.1rem 0.4rem;">{{link_relatorio}}</code> (URL do PDF) e
+            <code style="background:rgba(212,130,10,0.15);color:var(--gold);padding:0.1rem 0.4rem;">{{btn_relatorio}}</code> (botão de download)
+            para personalizar cada email. O email suporta formatação HTML e já inclui a assinatura da EH automaticamente.
+          </p>
+
+          <!-- ACCORDION -->
+          <div style="margin-bottom:1.5rem;">
+            <button onclick="toggleAccordion(this)" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:rgba(212,130,10,0.08);border:1px solid var(--border);color:var(--gray-light);font-family:'Montserrat',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;padding:0.75rem 1rem;cursor:pointer;transition:background 0.2s;">
+              <span>📋 Guia de Formatação</span>
+              <span class="accordion-arrow" style="transition:transform 0.2s;">▼</span>
+            </button>
+            <div class="accordion-content" style="display:none;background:rgba(0,0,0,0.2);border:1px solid var(--border);border-top:none;padding:1.2rem 1.2rem;">
+              <p style="font-size:0.75rem;color:var(--gray);margin-bottom:1rem;line-height:1.6;">Use estas tags HTML diretamente no corpo do email:</p>
+              <table style="width:100%;border-collapse:collapse;font-size:0.75rem;">
+                <thead>
+                  <tr style="border-bottom:1px solid var(--border);">
+                    <th style="text-align:left;color:var(--gray);font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:0.4rem 0.8rem;font-size:0.62rem;">Formatação</th>
+                    <th style="text-align:left;color:var(--gray);font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:0.4rem 0.8rem;font-size:0.62rem;">Como escrever</th>
+                    <th style="text-align:left;color:var(--gray);font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:0.4rem 0.8rem;font-size:0.62rem;">Resultado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom:1px solid var(--border-dim);">
+                    <td style="padding:0.5rem 0.8rem;color:var(--gray-light);">Negrito</td>
+                    <td style="padding:0.5rem 0.8rem;"><code style="background:rgba(212,130,10,0.12);color:var(--gold);padding:0.15rem 0.5rem;">&lt;strong&gt;texto&lt;/strong&gt;</code></td>
+                    <td style="padding:0.5rem 0.8rem;color:var(--white);"><strong>texto</strong></td>
+                  </tr>
+                  <tr style="border-bottom:1px solid var(--border-dim);">
+                    <td style="padding:0.5rem 0.8rem;color:var(--gray-light);">Itálico</td>
+                    <td style="padding:0.5rem 0.8rem;"><code style="background:rgba(212,130,10,0.12);color:var(--gold);padding:0.15rem 0.5rem;">&lt;em&gt;texto&lt;/em&gt;</code></td>
+                    <td style="padding:0.5rem 0.8rem;color:var(--white);"><em>texto</em></td>
+                  </tr>
+                  <tr style="border-bottom:1px solid var(--border-dim);">
+                    <td style="padding:0.5rem 0.8rem;color:var(--gray-light);">Cor dourada</td>
+                    <td style="padding:0.5rem 0.8rem;"><code style="background:rgba(212,130,10,0.12);color:var(--gold);padding:0.15rem 0.5rem;">&lt;span style="color:#D4820A"&gt;texto&lt;/span&gt;</code></td>
+                    <td style="padding:0.5rem 0.8rem;"><span style="color:#D4820A;">texto</span></td>
+                  </tr>
+                  <tr style="border-bottom:1px solid var(--border-dim);">
+                    <td style="padding:0.5rem 0.8rem;color:var(--gray-light);">Linha separadora</td>
+                    <td style="padding:0.5rem 0.8rem;"><code style="background:rgba(212,130,10,0.12);color:var(--gold);padding:0.15rem 0.5rem;">&lt;hr/&gt;</code></td>
+                    <td style="padding:0.5rem 0.8rem;color:var(--gray);">— linha horizontal —</td>
+                  </tr>
+                  <tr style="border-bottom:1px solid var(--border-dim);">
+                    <td style="padding:0.5rem 0.8rem;color:var(--gray-light);">Parágrafo</td>
+                    <td style="padding:0.5rem 0.8rem;"><code style="background:rgba(212,130,10,0.12);color:var(--gold);padding:0.15rem 0.5rem;">&lt;p&gt;texto&lt;/p&gt;</code></td>
+                    <td style="padding:0.5rem 0.8rem;color:var(--gray);">bloco de texto</td>
+                  </tr>
+                  <tr style="border-bottom:1px solid var(--border-dim);">
+                    <td style="padding:0.5rem 0.8rem;color:var(--gray-light);">Quebra de linha</td>
+                    <td style="padding:0.5rem 0.8rem;"><code style="background:rgba(212,130,10,0.12);color:var(--gold);padding:0.15rem 0.5rem;">&lt;br/&gt;</code></td>
+                    <td style="padding:0.5rem 0.8rem;color:var(--gray);">pula uma linha</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0.5rem 0.8rem;color:var(--gray-light);">Variáveis</td>
+                    <td style="padding:0.5rem 0.8rem;"><code style="background:rgba(212,130,10,0.12);color:var(--gold);padding:0.15rem 0.5rem;">{{nome}} {{desempenho}} {{valor}}</code></td>
+                    <td style="padding:0.5rem 0.8rem;color:var(--gray);">dados do cliente</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="margin-top:1rem;background:rgba(255,255,255,0.03);border:1px solid var(--border-dim);padding:1rem;">
+                <p style="font-size:0.68rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:0.6rem;">Exemplo de template</p>
+                <pre style="font-size:0.75rem;color:var(--gray-light);line-height:1.7;white-space:pre-wrap;">Olá &lt;strong&gt;{{nome}}&lt;/strong&gt;,
+
+Sua carteira rendeu &lt;strong&gt;&lt;span style="color:#D4820A"&gt;{{desempenho}} do CDI&lt;/span&gt;&lt;/strong&gt; em março.
+
+&lt;hr/&gt;
+
+O valor do serviço neste mês foi de &lt;strong&gt;{{valor}}&lt;/strong&gt;.
+
+Qualquer dúvida, estou à disposição.</pre>
+              </div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+            <div>
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.8rem;">
+                <div style="width:10px;height:10px;background:#4caf82;border-radius:50%;"></div>
+                <span style="font-size:0.65rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gray);">Acima do CDI (≥ 100%)</span>
+              </div>
+              <div class="upload-field" style="margin-bottom:0.6rem;"><label>Assunto</label><input type="text" id="subjectAcima" placeholder="Resultado de Março — EH Investimentos" /></div>
+              <div class="upload-field"><label>Corpo</label><textarea id="templateAcima" rows="10" placeholder="Olá {{nome}},&#10;&#10;Sua carteira rendeu {{desempenho}} do CDI...&#10;&#10;Valor do serviço: {{valor}}." style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(138,155,184,0.25);color:var(--white);font-family:'Montserrat',sans-serif;font-size:0.8rem;padding:0.85rem 1rem;outline:none;resize:vertical;line-height:1.7;transition:border-color 0.2s;"></textarea></div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.8rem;">
+                <div style="width:10px;height:10px;background:#e05555;border-radius:50%;"></div>
+                <span style="font-size:0.65rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gray);">Abaixo do CDI (< 100%)</span>
+              </div>
+              <div class="upload-field" style="margin-bottom:0.6rem;"><label>Assunto</label><input type="text" id="subjectAbaixo" placeholder="Resultado de Março — EH Investimentos" /></div>
+              <div class="upload-field"><label>Corpo</label><textarea id="templateAbaixo" rows="10" placeholder="Olá {{nome}},&#10;&#10;Sua carteira rendeu {{desempenho}} do CDI...&#10;&#10;Valor do serviço: {{valor}}." style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(138,155,184,0.25);color:var(--white);font-family:'Montserrat',sans-serif;font-size:0.8rem;padding:0.85rem 1rem;outline:none;resize:vertical;line-height:1.7;transition:border-color 0.2s;"></textarea></div>
+            </div>
+          </div>
+          <button class="btn-upload" onclick="saveTemplates()" style="margin-top:1.2rem;">Salvar Templates</button>
+          <div class="upload-feedback" id="templateFeedback"></div>
+        </div>
+      </div>
+      <div class="email-tab-content" id="tab-disparar">
+        <div class="upload-panel">
+          <h3>Dados dos Clientes</h3>
+          <p style="font-size:0.8rem;color:var(--gray);margin-bottom:1.2rem;line-height:1.7;">Cole sua tabela do Excel / Google Sheets. Colunas: <strong style="color:var(--white);">Email | Nome | % do CDI | Valor do Serviço</strong></p>
+          <div class="paste-zone" id="pasteZone" tabindex="0">
+            <span style="font-size:0.78rem;color:var(--gray);">📋 Clique aqui e cole (<strong style="color:var(--white);">Ctrl+V</strong>) sua tabela do Excel</span>
+          </div>
+          <div style="overflow-x:auto;margin-top:0.8rem;">
+            <table id="clientsTable">
+              <thead><tr><th>Email</th><th>Nome</th><th>% do CDI</th><th>Valor do Serviço</th><th>Relatório PDF</th><th></th></tr></thead>
+              <tbody id="clientsTableBody"></tbody>
+            </table>
+          </div>
+          <div style="display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap;">
+            <button class="btn-upload" onclick="addClientRow()" style="background:rgba(212,130,10,0.15);color:var(--gold);border:1px solid var(--border);">+ Adicionar linha</button>
+            <button class="btn-upload" onclick="clearAllRows()" style="background:rgba(224,85,85,0.1);color:#f08080;border:1px solid rgba(224,85,85,0.3);">Limpar tudo</button>
+          </div>
+          <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
+            <button class="btn-upload" onclick="previewEmails()" style="background:rgba(255,255,255,0.08);color:var(--white);">Pré-visualizar</button>
+            <button class="btn-upload" id="sendBtn" onclick="sendAllEmails()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Disparar Emails
+            </button>
+          </div>
+          <div class="upload-feedback" id="sendFeedback"></div>
+        </div>
+        <div id="previewArea" style="display:none;">
+          <div class="section-header"><div class="section-title">Pré-visualização</div></div>
+          <div id="previewList"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- EXTRATOS VIEW (admin only) -->
+    <div class="view" id="view-extratos">
+      <div class="welcome-banner">
+        <h2>Extratos <em>para Excel</em></h2>
+        <p>Converta extratos de corretoras em Excel organizado com CNPJ, tipo e valores brutos.</p>
+      </div>
+
+      <!-- Broker selector -->
+      <div class="broker-selector">
+        <button class="broker-btn active" id="btnXP" onclick="extSelectBroker('XP')">
+          <span class="broker-btn-name">XP Investimentos</span>
+          <span class="broker-btn-sub">Extrato de Conta Depósito</span>
+        </button>
+        <button class="broker-btn" id="btnEQI" onclick="extSelectBroker('EQI')">
+          <span class="broker-btn-name">EQI / BTG</span>
+          <span class="broker-btn-sub">Extrato da Conta Investimento</span>
+        </button>
+      </div>
+
+      <div class="eqi-notice-dash" id="eqiNotice">
+        <strong style="color:var(--white);">Modo EQI/BTG:</strong> faça upload do <strong style="color:var(--white);">Extrato da Conta Investimento</strong> (PDF longo com todas as seções). Os valores de resgates e amortizações serão automaticamente substituídos pelos valores brutos.
+      </div>
+
+      <!-- Upload -->
+      <div class="upload-panel">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          1. Extratos PDF
+        </h3>
+        <div class="extrato-upload-zone" id="extUploadZone">
+          <input type="file" id="extFileInput" accept=".pdf" multiple />
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);margin:0 auto 0.6rem;display:block;"><path d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
+          <div style="font-size:0.85rem;color:var(--gray-light);margin-bottom:0.3rem;">Arraste os PDFs aqui</div>
+          <div style="font-size:0.68rem;color:var(--gray);">ou clique para selecionar · vários arquivos aceitos</div>
+        </div>
+        <div class="file-list-ext" id="extFileList"></div>
+        <div class="ext-progress-wrap" id="extProgressWrap">
+          <div class="ext-progress-bar"><div class="ext-progress-fill" id="extProgressFill"></div></div>
+          <div class="ext-progress-label" id="extProgressLabel"></div>
+        </div>
+      </div>
+
+      <!-- Mapping -->
+      <div class="upload-panel">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+          2. Tabela CNPJ
+          <span style="font-size:0.62rem;font-weight:400;color:var(--gray);margin-left:0.5rem;" id="extMappingBrokerLabel">— XP</span>
+        </h3>
+        <p style="font-size:0.78rem;color:var(--gray);margin-bottom:1rem;line-height:1.6;">Mapeie trechos do nome do fundo para o CNPJ. Cada corretora tem sua própria tabela, salva automaticamente no Supabase.</p>
+
+        <div class="mapping-toolbar-ext">
+          <div class="save-indicator-ext">
+            <div class="save-dot saved" id="extSaveDot"></div>
+            <span id="extSaveLabel">Salvo</span>
+          </div>
+          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+            <button onclick="extExportMapping()" class="btn-upload" style="background:rgba(255,255,255,0.06);color:var(--gray-light);font-size:0.62rem;padding:0.4rem 0.8rem;">↓ Exportar Excel</button>
+            <label class="btn-upload" style="background:rgba(255,255,255,0.06);color:var(--gray-light);font-size:0.62rem;padding:0.4rem 0.8rem;cursor:pointer;">↑ Importar Excel<input type="file" accept=".xlsx,.xls" style="display:none" onchange="extImportMapping(this)"></label>
+            <button onclick="extResetMapping()" class="btn-upload" style="background:rgba(224,85,85,0.1);color:#f08080;border:1px solid rgba(224,85,85,0.3);font-size:0.62rem;padding:0.4rem 0.8rem;">Restaurar padrão</button>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="mapping-table-ext">
+            <thead><tr><th>Trecho do nome</th><th>CNPJ</th><th>Nome completo</th><th></th></tr></thead>
+            <tbody id="extMappingBody"></tbody>
+          </table>
+        </div>
+        <button onclick="extAddMappingRow()" class="btn-upload" style="margin-top:0.8rem;background:rgba(212,130,10,0.1);color:var(--gold);border:1px solid var(--border);">+ Adicionar fundo</button>
+      </div>
+
+      <!-- Process -->
+      <button class="btn-process-ext" id="extBtnProcess" onclick="extProcessAll()" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+        <span id="extBtnLabel">Processar e gerar Excel</span>
+      </button>
+
+      <div class="ext-status-box" id="extStatusBox"></div>
+
+      <!-- Preview -->
+      <div class="ext-preview-section" id="extPreviewSection">
+        <div class="section-header"><div class="section-title">3. Preview & Download</div></div>
+        <div class="ext-chips" id="extSummaryChips"></div>
+        <div class="ext-preview-wrap">
+          <table class="ext-preview-table" id="extPreviewTable"></table>
+        </div>
+        <button class="btn-download-ext" id="extBtnDownload">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Baixar Excel
+        </button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  const SUPABASE_URL   = 'https://migyqowqjfhvdcrtryms.supabase.co';
+  const SUPABASE_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pZ3lxb3dxamZodmRjcnRyeW1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxODU1NjIsImV4cCI6MjA5MDc2MTU2Mn0.kydlPAkhBukqNDeLCS9Uhg-D5jZF9EL8Wi2oCDnY4eI';
+  const ADMIN_EMAILS   = ['elisacmazzo@gmail.com', 'contato@eduardohorta.com.br'];
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbw-7COxlPEIRj_qLn2yAsfh6Z2PUjdBYvtnpax3Ky2jXTGxOncU6Ao4xZAmf7Ng-BHs/exec';
+
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false }
+  });
+
+  let currentUser  = null;
+  let isAdmin      = false;
+  let allReports   = [];
+  let selectedFile = null;
+  let clientRows   = [];
+  let booting      = false;
+
+
+
+  function showPasswordModal(type) {
+    document.getElementById('modalTitle').textContent = type === 'invite' ? 'Crie sua senha' : 'Nova senha';
+    document.getElementById('modalDesc').textContent  = type === 'invite'
+      ? 'Bem-vindo! Defina seu nome e senha para acessar o portal.'
+      : 'Defina sua nova senha de acesso.';
+    document.getElementById('nameField').style.display = type === 'invite' ? 'block' : 'none';
+    document.getElementById('setPasswordModal').style.display = 'flex';
+  }
+
+  async function doSetPassword() {
+    const name = document.getElementById('newUserName').value.trim();
+    const pw   = document.getElementById('newPassword').value;
+    const pw2  = document.getElementById('confirmPassword').value;
+    const err  = document.getElementById('modalError');
+    err.classList.remove('show');
+    const showName = document.getElementById('nameField').style.display !== 'none';
+    if (showName && !name) { err.textContent = 'Informe seu nome.'; err.classList.add('show'); return; }
+    if (pw.length < 6)     { err.textContent = 'Senha com mínimo 6 caracteres.'; err.classList.add('show'); return; }
+    if (pw !== pw2)        { err.textContent = 'As senhas não coincidem.'; err.classList.add('show'); return; }
+    const updateData = { password: pw };
+    if (showName && name) updateData.data = { full_name: name };
+    const { error } = await sb.auth.updateUser(updateData);
+    if (error) { err.textContent = 'Erro: ' + error.message; err.classList.add('show'); return; }
+    document.getElementById('setPasswordModal').style.display = 'none';
+    const { data } = await sb.auth.getUser();
+    currentUser = data.user;
+    initDashboard();
+  }
+
+  function initDashboard() {
+    document.getElementById('authGuard').style.display = 'none';
+    const email    = currentUser.email;
+    const name     = currentUser.user_metadata?.full_name || email.split('@')[0];
+    const initials = name.substring(0,2).toUpperCase();
+    document.getElementById('userAvatar').textContent  = initials;
+    document.getElementById('userName').textContent    = name;
+    document.getElementById('userEmail').textContent   = email;
+    document.getElementById('welcomeName').textContent = name;
+    // Mobile
+    const mun = document.getElementById('mobileUserName');
+    const mue = document.getElementById('mobileUserEmail');
+    if (mun) mun.textContent = name;
+    if (mue) mue.textContent = email;
+    document.getElementById('topbarDate').textContent  = new Date().toLocaleDateString('pt-BR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    if (isAdmin) {
+      document.getElementById('adminMenuSection').style.display = 'block';
+      loadClients();
+      // Mobile drawer admin items
+      document.getElementById('mobileAdminDivider').style.display = 'block';
+      document.getElementById('mobileAdminSection').style.display = 'block';
+      document.getElementById('mobileUploadBtn').style.display = 'flex';
+      document.getElementById('mobileExtratosBtn').style.display = 'flex';
+      document.getElementById('mobileClientesBtn').style.display = 'flex';
+      document.getElementById('mobileEmailsBtn').style.display = 'flex';
+    }
+    loadReports();
+    checkOnboarding();
+    sb.from('profiles').upsert({ id: currentUser.id, email, full_name: name, updated_at: new Date().toISOString() }, { onConflict: 'id' }).catch(() => {});
+  }
+
+  // ── ONBOARDING CHECK ──
+  async function checkOnboarding() {
+    if (isAdmin) return; // admins skip onboarding
+    try {
+      const { data } = await sb.from('onboarding').select('*').eq('user_id', currentUser.id).single();
+      if (!data || data.completed || data.skip_onboarding) return;
+
+      const banner = document.getElementById('obBanner');
+      const steps = document.getElementById('obBannerSteps');
+      if (!banner || !steps) return;
+
+      const stepDefs = [
+        { key: 'step_cadastro',    label: 'Cadastro' },
+        { key: 'step_suitability', label: 'Perfil API' },
+        { key: 'step_contrato',    label: 'Contrato' }
+      ];
+
+      steps.innerHTML = stepDefs.map(s =>
+        `<span class="ob-step-chip ${data[s.key] ? 'done' : 'pending'}">${data[s.key] ? '✓' : '○'} ${s.label}</span>`
+      ).join('');
+
+      banner.classList.add('visible');
+    } catch(e) {
+      // No onboarding record — show banner to start
+      const banner = document.getElementById('obBanner');
+      if (banner) {
+        document.getElementById('obBannerSteps').innerHTML =
+          '<span class="ob-step-chip pending">○ Cadastro</span><span class="ob-step-chip pending">○ Perfil API</span><span class="ob-step-chip pending">○ Contrato</span>';
+        banner.classList.add('visible');
+      }
+    }
+  }
+
+  // ── NAV ──
+  function showView(viewId, btn) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    document.querySelectorAll('.mobile-drawer-link').forEach(l => l.classList.remove('active'));
+    document.getElementById('view-' + viewId).classList.add('active');
+    if (btn) btn.classList.add('active');
+    const titles = { relatorios:'Relatórios', cartas:'Cartas Mensais', upload:'Upload de Relatório', extratos:'Extratos → Excel', emails:'Envio de Emails', clientes:'Gestão de Clientes' };
+    const topbar = document.getElementById('topbarTitle');
+    if (topbar) topbar.textContent = titles[viewId] || viewId;
+    if (viewId === 'emails') { loadTemplates(); if (clientRows.length === 0) addClientRow(); }
+    if (viewId === 'extratos') extLoadMappingFromSupabase();
+    if (viewId === 'clientes') loadClientesView();
+  }
+
+  async function doLogout() { await sb.auth.signOut(); window.location.href = 'eh-cliente-login.html'; }
+
+  // ── CLIENTES MANAGEMENT ──
+  async function loadClientesView() {
+    const grid = document.getElementById('clientesGrid');
+    if (!grid) return;
+    grid.innerHTML = '<div class="loading-state"><div class="spinner"></div> Carregando...</div>';
+    try {
+      const { data: profiles } = await sb.from('profiles').select('id, full_name, email, updated_at');
+      const { data: onboardings } = await sb.from('onboarding').select('*');
+      const obMap = {};
+      (onboardings || []).forEach(o => { obMap[o.user_id] = o; });
+
+      if (!profiles || profiles.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><p>Nenhum cliente cadastrado ainda.</p></div>';
+        return;
+      }
+
+      grid.innerHTML = profiles.map(p => {
+        const ob = obMap[p.id] || {};
+        const steps = [
+          { label: 'Cadastro', done: ob.step_cadastro },
+          { label: 'API', done: ob.step_suitability },
+          { label: 'Contrato', done: ob.step_contrato }
+        ];
+        const completed = ob.completed || ob.skip_onboarding;
+        const chips = steps.map(s =>
+          `<span style="font-size:0.6rem;padding:0.15rem 0.5rem;border-radius:10px;font-weight:600;background:${s.done?'rgba(76,175,130,0.15)':'rgba(138,155,184,0.1)'};color:${s.done?'#4caf82':'var(--gray)'};border:1px solid ${s.done?'rgba(76,175,130,0.3)':'var(--border-dim)'};">${s.done?'✓':' ○'} ${s.label}</span>`
+        ).join('');
+        return `
+          <div style="background:var(--navy-dark);padding:1.2rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+            <div>
+              <div style="font-size:0.88rem;font-weight:500;color:var(--white);margin-bottom:0.2rem;">${p.full_name || p.email}</div>
+              <div style="font-size:0.68rem;color:var(--gray);margin-bottom:0.5rem;">${p.email}</div>
+              <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">${chips}</div>
+            </div>
+            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+              ${completed
+                ? '<span style="font-size:0.65rem;color:#4caf82;font-weight:600;">✓ Onboarding completo</span>'
+                : `<button onclick="markOneComplete('${p.id}')" class="btn-upload" style="font-size:0.62rem;padding:0.4rem 0.8rem;background:rgba(212,130,10,0.15);color:var(--gold);border:1px solid var(--border);">Marcar completo</button>`
+              }
+              <button onclick="skipOnboarding('${p.id}')" class="btn-upload" style="font-size:0.62rem;padding:0.4rem 0.8rem;background:rgba(255,255,255,0.05);color:var(--gray);border:1px solid var(--border-dim);">${ob.skip_onboarding?'Reativar onboarding':'Pular onboarding'}</button>
+            </div>
+          </div>`;
+      }).join('');
+    } catch(e) {
+      grid.innerHTML = `<div class="empty-state"><p>Erro ao carregar: ${e.message}</p></div>`;
+    }
+  }
+
+  async function markOneComplete(userId) {
+    await sb.from('onboarding').upsert({ user_id: userId, completed: true, skip_onboarding: true, step_cadastro: true, step_suitability: true, step_contrato: true, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+    showFb2('clientesFb', '✓ Cliente marcado como concluído.', 'success');
+    loadClientesView();
+  }
+
+  async function skipOnboarding(userId) {
+    const { data } = await sb.from('onboarding').select('skip_onboarding').eq('user_id', userId).single();
+    const newVal = data ? !data.skip_onboarding : true;
+    await sb.from('onboarding').upsert({ user_id: userId, skip_onboarding: newVal, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+    showFb2('clientesFb', newVal ? 'Onboarding pulado para este cliente.' : 'Onboarding reativado.', 'success');
+    loadClientesView();
+  }
+
+  async function markAllOnboardingComplete() {
+    if (!confirm('Marcar TODOS os clientes como onboarding concluído? Isso inclui clientes antigos.')) return;
+    const { data: profiles } = await sb.from('profiles').select('id');
+    if (!profiles) return;
+    for (const p of profiles) {
+      await sb.from('onboarding').upsert({ user_id: p.id, completed: true, skip_onboarding: true, step_cadastro: true, step_suitability: true, step_contrato: true, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+    }
+    showFb2('clientesFb', `✓ ${profiles.length} cliente(s) marcados como concluído.`, 'success');
+    loadClientesView();
+  }
+
+  function showFb2(id, msg, type) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'upload-feedback ' + type;
+    el.textContent = msg;
+    setTimeout(() => { el.className = 'upload-feedback'; }, 5000);
+  }
+
+  // ── REPORTS ──
+  async function loadReports() {
+    try {
+      const { data, error } = await sb.from('reports').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      allReports = data || [];
+      const cartas     = allReports.filter(r => r.type === 'Carta Mensal');
+      const relatorios = allReports.filter(r => r.type !== 'Carta Mensal');
+      renderGrid(relatorios, 'reportsGrid');
+      renderGrid(cartas, 'cartasGrid');
+      if (isAdmin) renderAdminGrid(allReports, 'adminReportsGrid');
+      document.getElementById('statCount').textContent  = relatorios.length || '—';
+      document.getElementById('statLatest').textContent = relatorios[0] ? (relatorios[0].period || fmtDate(relatorios[0].created_at)) : '—';
+      renderFilters(relatorios);
+    } catch(e) {
+      document.getElementById('reportsGrid').innerHTML = `<div class="empty-state"><p>Erro ao carregar: ${e.message}</p></div>`;
+    }
+  }
+
+  function renderGrid(reports, gridId) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    if (!reports || !reports.length) {
+      grid.innerHTML = `<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>Nenhum documento disponível ainda.</p></div>`;
+      return;
+    }
+    grid.innerHTML = reports.map(r => {
+      const ext = (r.file_name || '').split('.').pop().toUpperCase() || 'PDF';
+      return `<div class="report-card">
+        <div class="report-card-top">
+          <div class="report-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <span class="report-badge">${r.type || 'Mensal'}</span>
+        </div>
+        <div>
+          <div class="report-name">${r.name || 'Documento'}</div>
+          <div class="report-meta" style="margin-top:0.3rem;">${r.period || fmtDate(r.created_at)}</div>
+        </div>
+        <a class="report-download" href="${r.file_url || '#'}" target="_blank">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Baixar ${ext}
+        </a>
+      </div>`;
+    }).join('');
+  }
+
+  function renderAdminGrid(reports, gridId) {
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+    if (!reports || !reports.length) { grid.innerHTML = `<div class="empty-state"><p>Nenhum relatório publicado ainda.</p></div>`; return; }
+    grid.innerHTML = reports.map(r => `
+      <div class="report-card">
+        <div class="report-card-top">
+          <div class="report-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <span class="report-badge">${r.type || 'Mensal'}</span>
+        </div>
+        <div>
+          <div class="report-name">${r.name || 'Documento'}</div>
+          <div class="report-meta" style="margin-top:0.2rem;">${r.period || fmtDate(r.created_at)}</div>
+          <div style="margin-top:0.2rem;font-size:0.65rem;color:var(--gold);">${r.user_id ? '👤 Específico' : '👥 Todos'}</div>
+        </div>
+        <div style="display:flex;gap:0.8rem;padding-top:0.8rem;border-top:1px solid var(--border-dim);">
+          <a style="font-size:0.65rem;color:var(--gold);text-decoration:none;" href="${r.file_url}" target="_blank">↓ Baixar</a>
+          <button onclick="deleteReport('${r.id}','${r.file_path || ''}')" style="font-size:0.65rem;color:#f08080;background:none;border:none;cursor:pointer;font-family:'Montserrat',sans-serif;padding:0;">✕ Remover</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderFilters(reports) {
+    const types = [...new Set(reports.map(r => r.type).filter(Boolean))];
+    const bar = document.getElementById('filterBar');
+    if (types.length <= 1) { bar.style.display = 'none'; return; }
+    bar.innerHTML = `<button class="filter-btn active" onclick="filterReports('all',this)">Todos</button>` +
+      types.map(t => `<button class="filter-btn" onclick="filterReports('${t}',this)">${t}</button>`).join('');
+  }
+
+  function filterReports(type, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const rel = allReports.filter(r => r.type !== 'Carta Mensal');
+    renderGrid(type === 'all' ? rel : rel.filter(r => r.type === type), 'reportsGrid');
+  }
+
+  // ── UPLOAD ──
+  function onFileSelect(e) {
+    selectedFile = e.target.files[0];
+    if (selectedFile) document.getElementById('selectedFileName').textContent = '📄 ' + selectedFile.name + ' (' + fmtSize(selectedFile.size) + ')';
+  }
+
+  const dz = document.getElementById('dropZone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.background = 'var(--gold-pale)'; });
+  dz.addEventListener('dragleave', () => { dz.style.background = ''; });
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.style.background = '';
+    const file = e.dataTransfer.files[0];
+    if (file) { selectedFile = file; document.getElementById('selectedFileName').textContent = '📄 ' + file.name; }
+  });
+
+  async function doUpload() {
+    if (!selectedFile) { showFb('uploadFeedback','Selecione um arquivo.','error'); return; }
+    const name   = document.getElementById('reportName').value.trim();
+    const period = document.getElementById('reportPeriod').value.trim();
+    const type   = document.getElementById('reportType').value;
+    if (!name || !period) { showFb('uploadFeedback','Preencha nome e período.','error'); return; }
+    const btn = document.getElementById('uploadBtn');
+    btn.disabled = true; btn.textContent = 'Publicando...';
+    const prog = document.getElementById('uploadProgress');
+    const bar  = document.getElementById('uploadProgressBar');
+    prog.style.display = 'block'; bar.style.width = '30%';
+    try {
+      const sanitize = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9._-]/g,'_').replace(/_+/g,'_');
+      const filePath = `reports/${Date.now()}_${sanitize(selectedFile.name)}`;
+      const { error: se } = await sb.storage.from('reports').upload(filePath, selectedFile, { contentType: selectedFile.type, upsert: false });
+      if (se) throw se;
+      bar.style.width = '70%';
+      const { data: urlData } = sb.storage.from('reports').getPublicUrl(filePath);
+      bar.style.width = '90%';
+      const recipientId = document.getElementById('reportRecipient').value || null;
+      const { error: de } = await sb.from('reports').insert({ name, period, type, file_url: urlData.publicUrl, file_path: filePath, file_name: selectedFile.name, uploaded_by: currentUser.id, user_id: recipientId, created_at: new Date().toISOString() });
+      if (de) throw de;
+      bar.style.width = '100%';
+      setTimeout(() => { prog.style.display = 'none'; bar.style.width = '0%'; }, 800);
+      showFb('uploadFeedback', `✓ "${name}" publicado com sucesso!`, 'success');
+      document.getElementById('reportName').value = '';
+      document.getElementById('reportPeriod').value = '';
+      document.getElementById('selectedFileName').textContent = '';
+      document.getElementById('fileInput').value = '';
+      selectedFile = null;
+      loadReports();
+    } catch(e) { prog.style.display = 'none'; showFb('uploadFeedback','Erro: ' + e.message,'error'); }
+    btn.disabled = false; btn.textContent = 'Publicar Relatório';
+  }
+
+  async function deleteReport(id, filePath) {
+    if (!confirm('Remover este relatório permanentemente?')) return;
+    if (filePath) await sb.storage.from('reports').remove([filePath]);
+    await sb.from('reports').delete().eq('id', id);
+    loadReports();
+  }
+
+  async function loadClients() {
+    try {
+      const { data } = await sb.from('profiles').select('id, full_name, email');
+      const sel = document.getElementById('reportRecipient');
+      if (!sel || !data) return;
+      sel.innerHTML = '<option value="">Todos os clientes</option>';
+      data.forEach(p => { sel.innerHTML += `<option value="${p.id}">${p.full_name || p.email}</option>`; });
+    } catch(e) { console.warn('loadClients:', e.message); }
+  }
+
+  // ── EMAIL ──
+  function switchEmailTab(tab, btn) {
+    document.querySelectorAll('.email-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.email-tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + tab).classList.add('active');
+  }
+
+  function saveTemplates() {
+    localStorage.setItem('eh_tpl', JSON.stringify({
+      sa: document.getElementById('subjectAcima').value,
+      ta: document.getElementById('templateAcima').value,
+      sb2: document.getElementById('subjectAbaixo').value,
+      tb: document.getElementById('templateAbaixo').value,
+    }));
+    showFb('templateFeedback','✓ Templates salvos!','success');
+  }
+
+  function loadTemplates() {
+    try {
+      const d = JSON.parse(localStorage.getItem('eh_tpl') || '{}');
+      if (d.sa)  document.getElementById('subjectAcima').value   = d.sa;
+      if (d.ta)  document.getElementById('templateAcima').value  = d.ta;
+      if (d.sb2) document.getElementById('subjectAbaixo').value  = d.sb2;
+      if (d.tb)  document.getElementById('templateAbaixo').value = d.tb;
+    } catch(e) {}
+  }
+
+  function addClientRow(data = {}) {
+    const id = Date.now() + '-' + Math.random().toString(36).substr(2,5);
+    clientRows.push(id);
+    const tr = document.createElement('tr');
+    tr.id = 'row-' + id;
+    tr.innerHTML = `
+      <td><input type="email" placeholder="email@exemplo.com" value="${data.email||''}" /></td>
+      <td><input type="text" placeholder="Nome do cliente" value="${data.nome||''}" /></td>
+      <td>
+        <input type="text" placeholder="ex: 103%" value="${data.desempenho||''}" id="di-${id}" oninput="updateBadge('${id}')" />
+        <div id="db-${id}" style="margin-top:0.3rem;"></div>
+      </td>
+      <td><input type="text" placeholder="ex: R$ 1.500,00" value="${data.valor||''}" /></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <label id="pdf-label-${id}" style="font-size:0.65rem;color:var(--gray);cursor:pointer;display:flex;align-items:center;gap:0.4rem;white-space:nowrap;">
+            <input type="file" accept=".pdf" style="display:none;" onchange="onPdfSelect(event,'${id}')" />
+            <span id="pdf-btn-${id}" style="background:rgba(212,130,10,0.12);border:1px solid var(--border);color:var(--gold);padding:0.25rem 0.6rem;font-size:0.62rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;transition:background 0.2s;">
+              + PDF
+            </span>
+          </label>
+          <span id="pdf-name-${id}" style="font-size:0.65rem;color:var(--gray);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+          <div id="pdf-spinner-${id}" style="display:none;width:12px;height:12px;border:2px solid rgba(212,130,10,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0;"></div>
+        </div>
+        <input type="hidden" id="pdf-url-${id}" value="" />
+      </td>
+      <td><button onclick="removeRow('${id}')" style="background:none;border:none;color:#e05555;cursor:pointer;font-size:1rem;padding:0.3rem;">✕</button></td>`;
+    document.getElementById('clientsTableBody').appendChild(tr);
+    updateBadge(id);
+  }
+
+  function removeRow(id) { document.getElementById('row-' + id)?.remove(); clientRows = clientRows.filter(r => r !== id); }
+  function clearAllRows() { document.getElementById('clientsTableBody').innerHTML = ''; clientRows = []; }
+
+  async function onPdfSelect(event, id) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const nameEl    = document.getElementById('pdf-name-' + id);
+    const spinner   = document.getElementById('pdf-spinner-' + id);
+    const urlInput  = document.getElementById('pdf-url-' + id);
+    const btnEl     = document.getElementById('pdf-btn-' + id);
+
+    nameEl.textContent = file.name.length > 16 ? file.name.slice(0,14) + '…' : file.name;
+    spinner.style.display = 'block';
+    btnEl.textContent = '...';
+
+    try {
+      const sanitize = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9._-]/g,'_').replace(/_+/g,'_');
+      const filePath = `email-reports/${Date.now()}_${sanitize(file.name)}`;
+      const { error: se } = await sb.storage.from('reports').upload(filePath, file, { contentType: 'application/pdf', upsert: false });
+      if (se) throw se;
+      const { data: urlData } = sb.storage.from('reports').getPublicUrl(filePath);
+      urlInput.value = urlData.publicUrl;
+      btnEl.textContent = '✓';
+      btnEl.style.color = '#4caf82';
+      btnEl.style.borderColor = 'rgba(76,175,130,0.4)';
+      btnEl.style.background = 'rgba(76,175,130,0.08)';
+    } catch(e) {
+      btnEl.textContent = '✕';
+      btnEl.style.color = '#e05555';
+      nameEl.textContent = 'Erro no upload';
+      console.error('PDF upload error:', e);
+    }
+    spinner.style.display = 'none';
+  }
+
+  function updateBadge(id) {
+    const input = document.getElementById('di-' + id);
+    const badge = document.getElementById('db-' + id);
+    if (!input || !badge) return;
+    const num = parseFloat((input.value||'').replace(',','.').replace('%',''));
+    if (isNaN(num) || !input.value.trim()) { badge.innerHTML = ''; return; }
+    badge.innerHTML = num >= 100
+      ? '<span class="badge-acima">▲ Acima do CDI</span>'
+      : '<span class="badge-abaixo">▼ Abaixo do CDI</span>';
+  }
+
+  function getClients() {
+    return clientRows.map(id => {
+      const row = document.getElementById('row-' + id);
+      if (!row) return null;
+      const inputs = row.querySelectorAll('input[type="email"], input[type="text"]');
+      const pdfUrl = document.getElementById('pdf-url-' + id)?.value || '';
+      return {
+        email:       inputs[0].value.trim(),
+        nome:        inputs[1].value.trim(),
+        desempenho:  inputs[2].value.trim(),
+        valor:       inputs[3].value.trim(),
+        link_relatorio: pdfUrl
+      };
+    }).filter(r => r && r.email && r.nome);
+  }
+
+  function applyTpl(client) {
+    const num = parseFloat(client.desempenho.replace(',','.').replace('%',''));
+    const up  = num >= 100;
+    const subj = document.getElementById(up ? 'subjectAcima' : 'subjectAbaixo').value;
+    const body = document.getElementById(up ? 'templateAcima' : 'templateAbaixo').value;
+    const linkHtml = client.link_relatorio
+      ? `<p style="margin-top:16px;"><a href="${client.link_relatorio}" style="display:inline-block;background:#D4820A;color:#081537;padding:10px 22px;text-decoration:none;font-weight:700;font-size:13px;">↓ Baixar Relatório</a></p>`
+      : '';
+    const r = s => s
+      .replace(/{{nome}}/g, client.nome)
+      .replace(/{{desempenho}}/g, client.desempenho)
+      .replace(/{{valor}}/g, client.valor)
+      .replace(/{{link_relatorio}}/g, client.link_relatorio || '')
+      .replace(/{{btn_relatorio}}/g, linkHtml);
+    return { subject: r(subj), body: r(body), up };
+  }
+
+  function previewEmails() {
+    const clients = getClients();
+    if (!clients.length) { alert('Adicione pelo menos um cliente.'); return; }
+    const area = document.getElementById('previewArea');
+    area.style.display = 'block';
+    document.getElementById('previewList').innerHTML = clients.map(c => {
+      const { subject, body, up } = applyTpl(c);
+      const badge = up ? '<span class="badge-acima">▲ Acima do CDI</span>' : '<span class="badge-abaixo">▼ Abaixo do CDI</span>';
+      return `<div class="preview-card">
+        <div class="preview-card-header">
+          <div class="preview-meta"><strong>${c.nome}</strong> &lt;${c.email}&gt;<br/><strong>Assunto:</strong> ${subject}</div>
+          ${badge}
+        </div>
+        <div class="preview-body">${body}</div>
+      </div>`;
+    }).join('');
+    area.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function buildHtmlEmail(text) {
+    // Convert plain text with basic HTML tags to a full HTML email
+    // Replace newlines with <br> for lines not already HTML
+    const lines = text.split('\n');
+    const body = lines.map(line => {
+      if (line.trim() === '') return '<br/>';
+      // If line already contains HTML tags, leave it
+      if (/<[a-z][\s\S]*>/i.test(line)) return line;
+      return line + '<br/>';
+    }).join('\n');
+
+    return `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"/></head>
+<body style="font-family:Arial,sans-serif;font-size:14px;color:#222;line-height:1.7;max-width:600px;margin:0;padding:20px;">
+  <div style="margin-bottom:24px;">
+    ${body}
+  </div>
+  <div style="margin-top:32px;">
+    <img src="https://elisaschulz.github.io/eh-investimentos/Assinatura_EH.png" alt="Eduardo Horta — EH Investimentos" style="display:block;max-width:420px;width:100%;height:auto;" />
+  </div>
+</body>
+</html>`;
+  }
+
+  function toggleAccordion(btn) {
+    const content = btn.nextElementSibling;
+    const arrow   = btn.querySelector('.accordion-arrow');
+    const isOpen  = content.style.display === 'block';
+    content.style.display = isOpen ? 'none' : 'block';
+    arrow.style.transform  = isOpen ? '' : 'rotate(180deg)';
+    btn.style.background   = isOpen ? 'rgba(212,130,10,0.08)' : 'rgba(212,130,10,0.15)';
+  }
+
+  async function sendAllEmails() {
+    const clients = getClients();
+    if (!clients.length) { alert('Adicione pelo menos um cliente.'); return; }
+    if (!confirm(`Confirmar envio de ${clients.length} email(s)?`)) return;
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true; btn.textContent = 'Enviando...';
+
+    let sent = 0; const errors = [];
+    for (const c of clients) {
+      const { subject, body } = applyTpl(c);
+      try {
+        // Convert plain text to HTML, preserving line breaks
+        const htmlBody = buildHtmlEmail(body);
+        const res = await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ to_email: c.email, subject, html_message: htmlBody })
+        });
+        const result = await res.json();
+        if (result.success) { sent++; }
+        else { errors.push(`${c.email}: ${result.error || 'Erro desconhecido'}`); }
+      } catch(e) {
+        errors.push(`${c.email}: ${e.message}`);
+      }
+      await new Promise(r => setTimeout(r, 400));
+    }
+    btn.disabled = false; btn.textContent = 'Disparar Emails';
+    showFb('sendFeedback', errors.length ? `${sent} enviado(s). Erros: ${errors.join(' | ')}` : `✓ ${sent} email(s) enviado(s) com sucesso!`, errors.length ? 'error' : 'success');
+  }
+
+  // Paste from Excel
+  document.addEventListener('paste', e => {
+    if (!document.getElementById('view-emails')?.classList.contains('active')) return;
+    if (!document.getElementById('tab-disparar')?.classList.contains('active')) return;
+    const text = e.clipboardData.getData('text/plain');
+    if (!text) return;
+    const lines = text.trim().split('\n').filter(l => l.trim());
+    if (!lines.length) return;
+    const hasHeader = lines[0].toLowerCase().includes('email') || lines[0].toLowerCase().includes('nome');
+    const data = hasHeader ? lines.slice(1) : lines;
+    clearAllRows();
+    let added = 0;
+    data.forEach(line => {
+      const cols = line.split('\t').map(c => c.trim());
+      if (cols.length < 2) return;
+      addClientRow({ email: cols[0]||'', nome: cols[1]||'', desempenho: cols[2]||'', valor: cols[3]||'' });
+      added++;
+    });
+    showFb('sendFeedback', `✓ ${added} cliente(s) importado(s).`, 'success');
+    e.preventDefault();
+  });
+
+  const pz = document.getElementById('pasteZone');
+  pz.addEventListener('focus', () => pz.style.borderColor = 'var(--gold)');
+  pz.addEventListener('blur',  () => pz.style.borderColor = '');
+
+  // ── HELPERS ──
+  function showFb(id, msg, type) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'upload-feedback ' + type;
+    el.textContent = msg;
+    setTimeout(() => { el.className = 'upload-feedback'; }, 5000);
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+  }
+
+  function fmtSize(b) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+    return (b/1048576).toFixed(1) + ' MB';
+  }
+
+  // ── MOBILE NAV ──
+  function toggleDrawer() {
+    const drawer = document.getElementById('mobileDrawer');
+    const burger = document.getElementById('hamburger');
+    const isOpen = drawer.classList.contains('open');
+    drawer.classList.toggle('open', !isOpen);
+    burger.classList.toggle('open', !isOpen);
+    document.body.style.overflow = isOpen ? '' : 'hidden';
+  }
+
+  function closeDrawer() {
+    document.getElementById('mobileDrawer').classList.remove('open');
+    document.getElementById('hamburger').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // START
+  sb.auth.onAuthStateChange((event, session) => {
+    if (booting) return;
+
+    if (event === 'INITIAL_SESSION') {
+      booting = true;
+      // Check for invite/recovery token first
+      const hash = window.location.hash;
+      if (hash && hash.includes('access_token')) {
+        const p    = new URLSearchParams(hash.substring(1));
+        const type = p.get('type');
+        const at   = p.get('access_token');
+        const rt   = p.get('refresh_token') || '';
+        if ((type === 'invite' || type === 'recovery') && at) {
+          history.replaceState(null, '', window.location.pathname);
+          sb.auth.setSession({ access_token: at, refresh_token: rt }).then(({ data, error }) => {
+            if (!error && data.session) {
+              currentUser = data.session.user;
+              isAdmin = ADMIN_EMAILS.includes(currentUser.email);
+              document.getElementById('authGuard').style.display = 'none';
+              showPasswordModal(type);
+            } else {
+              window.location.href = 'eh-cliente-login.html';
+            }
+          });
+          return;
+        }
+      }
+      // Normal session
+      if (session) {
+        currentUser = session.user;
+        isAdmin = ADMIN_EMAILS.includes(currentUser.email);
+        initDashboard();
+      } else {
+        window.location.href = 'eh-cliente-login.html';
+      }
+    } else if (event === 'SIGNED_OUT') {
+      window.location.href = 'eh-cliente-login.html';
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════
+  // ── EXTRATOS TOOL ──────────────────────────────────────
+  // ═══════════════════════════════════════════════════════
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  let extSelectedFiles = [];
+  let extAllProcessedRows = [];
+  let extCurrentBroker = 'XP';
+  let extMappingSaveTimer = null;
+
+  // Default mappings
+  const DEFAULT_MAPPING_XP = [
+    { key:"BV Institucional",            cnpj:"06.866.051/0001-87", full:"BV INSTITUCIONAL FIRF CP" },
+    { key:"Agrofin",                     cnpj:"61.700.255/0001-51", full:"AGROFIN MILENIO EQI FIC AGRO RL" },
+    { key:"SRM Exodus",                  cnpj:"55.912.292/0001-20", full:"FIC FIDC SRM EXODUS RESP LTD" },
+    { key:"Manati",                      cnpj:"63.441.263/0001-56", full:"MANATÍ RENDA IMOBILIÁRIA FII RL" },
+    { key:"Orram",                       cnpj:"43.551.206/0001-12", full:"ORRAM 60 FICFIM CrPr" },
+    { key:"Packem",                      cnpj:"63.932.359/0001-17", full:"PACKEM FIAGRO FIDC SR2" },
+    { key:"Porto Seguro FIRF",           cnpj:"18.719.154/0001-01", full:"PORTO SEGURO DI CP" },
+    { key:"Blueoak SSI",                 cnpj:"55.219.936/0001-08", full:"BLUEOAK SPECIAL SIT. I FIC FIP" },
+    { key:"Absolute Creta Advisory",     cnpj:"48.122.126/0001-65", full:"ABSOLUTE CRETA ADVISORY FIC FIRF" },
+    { key:"Jivemauá Bossanova",          cnpj:"", full:"Jivemauá Bossanova Crédito Securitizad" },
+    { key:"CRI MAGAZINE LUIZA",          cnpj:"", full:"CRI Magazine Luiza - OUT/2030" },
+    { key:"CDII11",                      cnpj:"", full:"CDII11 - FII" },
+    { key:"XP Renda Imobiliária",        cnpj:"", full:"XP Renda Imobiliária" },
+    { key:"CRA MARFRIG",                 cnpj:"", full:"CRA Marfrig - MAR/2034" },
+    { key:"CDCA VAMOS",                  cnpj:"", full:"CDCA Vamos - SET/2031" },
+    { key:"CDCA BTG",                    cnpj:"", full:"CDCA BTG - JUL/2034" },
+    { key:"CRA JBS",                     cnpj:"", full:"CRA JBS - SET/2037" },
+    { key:"CRA SEARA",                   cnpj:"", full:"CRA Seara - SET/2034" },
+    { key:"CRI MRV FLEX",                cnpj:"", full:"CRI MRV Flex - MAR/2033" },
+    { key:"RBRY11",                      cnpj:"", full:"RBRY11 - FII" },
+  ];
+
+  const DEFAULT_MAPPING_EQI = [
+    { key:"BV INSTI",                    cnpj:"06.866.051/0001-87", full:"BV INSTITUCIONAL FIRF CrPr" },
+    { key:"AGROFIN",                     cnpj:"61.700.255/0001-51", full:"AGROFIN MILENIO EQI FIC AGRO RL" },
+    { key:"SRM EXODUS",                  cnpj:"55.912.292/0001-20", full:"FIC FIDC SRM EXODUS RESP LTD" },
+    { key:"MANATI FII",                  cnpj:"63.441.263/0001-56", full:"MANATÍ RENDA IMOBILIÁRIA FII RL" },
+    { key:"ORRAM",                       cnpj:"43.551.206/0001-12", full:"ORRAM 60 FICFIM CrPr" },
+    { key:"PACKEM",                      cnpj:"63.932.359/0001-17", full:"PACKEM FIAGRO FIDC SR2" },
+    { key:"PSEG",                        cnpj:"18.719.154/0001-01", full:"Porto DI CrPr FIRef (PSEG)" },
+    { key:"RBR INFRA",                   cnpj:"63.085.032/0001-57", full:"RBR INFRA CRÉDITO CDI FIP RL" },
+    { key:"ROOT CAP",                    cnpj:"64.299.705/0001-34", full:"ROOT CAPITAL FICUS FIDC" },
+    { key:"SOLIS",                       cnpj:"13.054.728/0001-48", full:"SOLIS CAPITAL ANTARES CrPr FICFIM LP" },
+    { key:"EV ENERGIA",                  cnpj:"56.873.069/0001-84", full:"EV ENERGIA FIC FIP INFRA RESP LIMITADA" },
+    { key:"CRA BANDEIRANTES",            cnpj:"", full:"CRA Bandeirantes" },
+    { key:"CANAL COMPANHIA",             cnpj:"", full:"CRA Canal Companhia de Securitizacao" },
+    { key:"CRA AGRION",                  cnpj:"", full:"CRA Agrion - VENC 2033" },
+    { key:"CRI URBA",                    cnpj:"", full:"CRI Urba - VENC 2035" },
+    { key:"CRI FORGREEN",                cnpj:"", full:"CRI Forgreen III - VENC 2034" },
+    { key:"MINERVA",                     cnpj:"", full:"CRA Minerva" },
+    { key:"PANTANAL",                    cnpj:"", full:"CRA Pantanal" },
+  ];
+
+  // ── Broker selector ──
+  function extSelectBroker(broker) {
+    extCurrentBroker = broker;
+    document.getElementById('btnXP').classList.toggle('active', broker === 'XP');
+    document.getElementById('btnEQI').classList.toggle('active', broker === 'EQI');
+    document.getElementById('eqiNotice').classList.toggle('visible', broker === 'EQI');
+    document.getElementById('extMappingBrokerLabel').textContent = '— ' + (broker === 'XP' ? 'XP' : 'EQI/BTG');
+    extLoadMappingFromSupabase();
+    extSelectedFiles = [];
+    document.getElementById('extFileList').innerHTML = '';
+    document.getElementById('extBtnProcess').disabled = true;
+    document.getElementById('extPreviewSection').classList.remove('visible');
+    document.getElementById('extStatusBox').classList.remove('visible');
+    document.getElementById('extStatusBox').innerHTML = '';
+  }
+
+  // ── Mapping — Supabase ──
+  function extCurrentTable() { return extCurrentBroker === 'XP' ? 'cnpj_mapping_xp' : 'cnpj_mapping_eqi'; }
+  function extCurrentDefault() { return extCurrentBroker === 'XP' ? DEFAULT_MAPPING_XP : DEFAULT_MAPPING_EQI; }
+
+  async function extLoadMappingFromSupabase() {
+    extMarkSave('loading');
+    try {
+      const { data, error } = await sb.from(extCurrentTable()).select('*').order('key');
+      if (error) throw error;
+      const rows = (data && data.length > 0) ? data.map(r => ({ key: r.key, cnpj: r.cnpj || '', full: r.full_name || '' })) : extCurrentDefault();
+      extRenderMapping(rows);
+      extMarkSave('saved');
+    } catch(e) {
+      console.warn('Mapping load:', e.message);
+      extRenderMapping(extCurrentDefault());
+      extMarkSave('saved');
+    }
+  }
+
+  async function extSaveMappingToSupabase() {
+    extMarkSave('unsaved');
+    clearTimeout(extMappingSaveTimer);
+    extMappingSaveTimer = setTimeout(async () => {
+      const rows = extGetMappingRows();
+      const table = extCurrentTable();
+      try {
+        await sb.from(table).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        if (rows.length > 0) {
+          const inserts = rows.map(r => ({ key: r.key, cnpj: r.cnpj, full_name: r.full, updated_at: new Date().toISOString() }));
+          const { error } = await sb.from(table).insert(inserts);
+          if (error) throw error;
+        }
+        extMarkSave('saved');
+      } catch(e) {
+        console.warn('Mapping save:', e.message);
+        extMarkSave('error');
+      }
+    }, 1500);
+  }
+
+  function extMarkSave(state) {
+    const dot = document.getElementById('extSaveDot');
+    const label = document.getElementById('extSaveLabel');
+    if (!dot || !label) return;
+    if (state === 'saved') {
+      dot.className = 'save-dot saved';
+      label.textContent = 'Salvo — ' + new Date().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+    } else if (state === 'unsaved') {
+      dot.className = 'save-dot unsaved';
+      label.textContent = 'Salvando...';
+    } else if (state === 'loading') {
+      dot.className = 'save-dot';
+      label.textContent = 'Carregando...';
+    } else {
+      dot.className = 'save-dot unsaved';
+      label.textContent = 'Erro ao salvar';
+    }
+  }
+
+  function extRenderMapping(rows) {
+    document.getElementById('extMappingBody').innerHTML = '';
+    rows.forEach(r => extAddMappingRow(r.key, r.cnpj, r.full));
+  }
+
+  function extEscHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+  function extAddMappingRow(key='', cnpj='', full='') {
+    const tbody = document.getElementById('extMappingBody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" placeholder="ex: BV INSTITUCIONAL" value="${extEscHtml(key)}" /></td>
+      <td><input type="text" placeholder="00.000.000/0000-00" value="${extEscHtml(cnpj)}" style="color:var(--gold);" /></td>
+      <td><input type="text" placeholder="Nome completo (opcional)" value="${extEscHtml(full)}" /></td>
+      <td><button onclick="this.closest('tr').remove();extSaveMappingToSupabase();" style="background:none;border:none;color:#e05555;cursor:pointer;font-size:1rem;padding:0.3rem;">✕</button></td>`;
+    tr.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', () => extSaveMappingToSupabase());
+    });
+    tbody.appendChild(tr);
+  }
+
+  function extGetMappingRows() {
+    return Array.from(document.querySelectorAll('#extMappingBody tr')).map(tr => {
+      const ins = tr.querySelectorAll('input');
+      return { key: ins[0].value.trim(), cnpj: ins[1].value.trim(), full: ins[2].value.trim() };
+    }).filter(r => r.key);
+  }
+
+  function extResetMapping() {
+    if (!confirm('Restaurar tabela padrão? Isso vai sobrescrever o mapeamento atual.')) return;
+    extRenderMapping(extCurrentDefault());
+    extSaveMappingToSupabase();
+  }
+
+  function extExportMapping() {
+    const rows = extGetMappingRows();
+    const data = [['Trecho do Nome','CNPJ','Nome Completo'], ...rows.map(r => [r.key, r.cnpj, r.full])];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    ws['!cols'] = [28, 22, 42].map(w => ({ wch: w }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Mapeamento CNPJ');
+    XLSX.writeFile(wb, `mapeamento_${extCurrentBroker.toLowerCase()}_eh.xlsx`);
+  }
+
+  function extImportMapping(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const wb = XLSX.read(e.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        const rows = data.slice(1).filter(r => r[0]).map(r => ({ key: String(r[0]||'').trim(), cnpj: String(r[1]||'').trim(), full: String(r[2]||'').trim() }));
+        if (!rows.length) { alert('Nenhuma linha encontrada.'); return; }
+        extRenderMapping(rows);
+        extSaveMappingToSupabase();
+        alert('✓ ' + rows.length + ' fundos importados.');
+      } catch(err) { alert('Erro: ' + err.message); }
+      input.value = '';
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  // ── File upload ──
+  const extUploadZone = document.getElementById('extUploadZone');
+  const extFileInput  = document.getElementById('extFileInput');
+  extUploadZone.addEventListener('click', () => extFileInput.click());
+  extUploadZone.addEventListener('dragover', e => { e.preventDefault(); extUploadZone.classList.add('drag-over'); });
+  extUploadZone.addEventListener('dragleave', () => extUploadZone.classList.remove('drag-over'));
+  extUploadZone.addEventListener('drop', e => {
+    e.preventDefault(); extUploadZone.classList.remove('drag-over');
+    const pdfs = [...e.dataTransfer.files].filter(f => f.type === 'application/pdf');
+    if (pdfs.length) extSetFiles(pdfs);
+  });
+  extFileInput.addEventListener('change', () => { if (extFileInput.files.length) extSetFiles([...extFileInput.files]); });
+
+  function extSetFiles(files) {
+    extSelectedFiles = files;
+    const list = document.getElementById('extFileList');
+    list.innerHTML = '';
+    files.forEach(f => {
+      const div = document.createElement('div');
+      div.className = 'file-item-ext';
+      div.id = 'efi_' + f.name.replace(/\W/g, '_');
+      div.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);flex-shrink:0;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span class="file-item-ext-name">${f.name}</span>
+        <span class="file-item-ext-status file-status-wait" id="efs_${f.name.replace(/\W/g,'_')}">aguardando</span>`;
+      list.appendChild(div);
+    });
+    document.getElementById('extBtnProcess').disabled = false;
+    const n = files.length;
+    document.getElementById('extBtnLabel').textContent = n === 1 ? 'Processar e gerar Excel' : `Processar ${n} extratos e gerar Excel`;
+  }
+
+  function extSetFileStatus(file, status, cls) {
+    const el = document.getElementById('efs_' + file.name.replace(/\W/g, '_'));
+    if (el) { el.textContent = status; el.className = 'file-item-ext-status ' + (cls || ''); }
+  }
+
+  // ── PDF extraction ──
+  async function extExtractText(file) {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    let text = '';
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page = await pdf.getPage(p);
+      const content = await page.getTextContent();
+      text += content.items.map(i => i.str).join(' ') + '\n';
+    }
+    return text;
+  }
+
+  // ── Shared utilities ──
+  function extParseAmount(str) {
+    if (!str) return null;
+    const n = parseFloat(str.replace(/R\$\s*/g,'').replace(/\./g,'').replace(',','.'));
+    return isNaN(n) ? null : n;
+  }
+  function extLookupCNPJ(h, mapping) {
+    const u = h.toUpperCase();
+    for (const m of mapping) { if (m.key && u.includes(m.key.toUpperCase())) return m.cnpj || '—'; }
+    return '—';
+  }
+  function extGetSheetName(text, filename) {
+    const flat = text.replace(/\n/g,' ').replace(/\s+/g,' ');
+    const anchor = flat.match(/(.{5,80}?)\s+CPF\/CNPJ/);
+    if (anchor) { const words = anchor[1].trim().split(/\s+/).filter(w => /^[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÀÇ]{2,}$/.test(w)); if (words.length >= 2) return words.slice(-4).join(' ').slice(0,31); }
+    const anchor2 = flat.match(/(.{5,80}?)\s+CPF\b/);
+    if (anchor2) { const words = anchor2[1].trim().split(/\s+/).filter(w => /^[A-ZÁÉÍÓÚÂÊÎÔÛÃÕÀÇ]{2,}$/.test(w)); if (words.length >= 2) return words.slice(-4).join(' ').slice(0,31); }
+    return filename.replace(/\.pdf$/i,'').replace(/[_-]/g,' ').slice(0,31);
+  }
+
+  // ── XP Parser ──
+  function extClassifyTipoXP(h) {
+    const u = h.toUpperCase();
+    if (u.includes('IRRF')) return 'IRRF';
+    if (u.includes('IOF')) return 'IOF';
+    if (u.includes('RESGATE')) return 'Resgate';
+    if (u.includes('INTEGRALIZ')) return 'Integralização';
+    if (u.includes('RENDIMENTO')||u.includes('RENDIMENTOS DE CLIENTES')) return 'Rendimento';
+    if (u.includes('AMORTIZ')) return 'Amortização';
+    if (u.includes('JUROS')||u.includes('PGTO')||u.includes('PGT ')) return 'Juros';
+    if (u.includes('TED')) return 'TED';
+    if (u.includes('PIX')) return 'PIX';
+    return 'Outro';
+  }
+  function extParseXP(text) {
+    const flat = text.replace(/\n/g,' ').replace(/\s{2,}/g,' ');
+    const re = /(\d{2}\/\d{2}\/\d{4})\s+(\d{2}\/\d{2}\/\d{4})\s+(.+?)\s+R\$\s*([-\d.,]+)\s+R\$\s*([-\d.,]+)/g;
+    const rows = []; let m;
+    while ((m = re.exec(flat)) !== null) {
+      const historico = m[3].trim().replace(/\s+/g,' ');
+      if (/Histórico|Mov\b|^Liq\b/.test(historico)) continue;
+      const valor = extParseAmount(m[4]); const saldo = extParseAmount(m[5]);
+      if (valor === null || saldo === null) continue;
+      rows.push({ dataMov:m[1], dataLiq:m[2], historico, valor, saldo });
+    }
+    return rows;
+  }
+
+  // ── EQI Parser ──
+  function extParseAmountEQI(s) { if (!s) return null; const n = parseFloat(s.replace(/\./g,'').replace(',','.')); return isNaN(n) ? null : n; }
+  function extIsFinancialEQI(s) { return /^-?[\d\.]+,\d{2}$/.test(s); }
+  function extClassifyTipoEQI(desc) {
+    const u = desc.toUpperCase();
+    if (u.includes('RESGATE DE COTAS')) return 'Resgate';
+    if (u.includes('AQUISICAO DE COTAS')||u.includes('AQUISIÇÃO DE COTAS')) return 'Integralização';
+    if (u.includes('AMORTIZAÇÃO DO FUNDO')||u.includes('AMORTIZACAO DO FUNDO')) return 'Amortização';
+    if (u.includes('CUPOM')) return 'Juros CRA/CRI';
+    if (u.includes('VLR. AMORTIZ')||u.includes('VLR . AMORTIZ')) return 'Amortização CRI/CRA';
+    if (u.includes('VENCIMENTO')) return 'Vencimento CRA/CRI';
+    if (u.includes('RENDIMENTO')) return 'Rendimento';
+    if (u.includes('COMPRA')) return 'Compra';
+    if (u.includes('REMUNERADA')) return 'Conta Remunerada';
+    return 'Outro';
+  }
+  function extParseEQIFundMovs(text) {
+    const flat = text.replace(/\n/g,' ').replace(/\s{2,}/g,' ');
+    const result = {};
+    const parts = flat.split(/ovimenta.{0,5}o\s*[-–]\s*/i);
+    for (let pi = 1; pi < parts.length; pi++) {
+      const part = parts[pi];
+      const nameMatch = part.match(/^([A-Za-z][A-Za-z0-9\s\.\-ÁÉÍÓÚÂÊÎÔÛÃÕÀÇáéíóúâêîôûãõàç]{2,80}?)(?=\s+\d{2}\/\d{2}\/|\s+[Dd]\s*[Aa])/);
+      if (!nameMatch) continue;
+      const fundName = nameMatch[1].trim().toUpperCase();
+      const totalIdx = part.search(/[Tt]\s*otal\s+de\s+[Aa]|[Tt]\s*otal\s+de\s+[Rr]/i);
+      const secText = totalIdx >= 0 ? part.slice(0, totalIdx) : part;
+      const dates = [...secText.matchAll(/\d{2}\/\d{2}\/\d{2,4}/g)];
+      const movs = [];
+      for (let di = 0; di < dates.length; di++) {
+        const dPos = dates[di].index; const dEnd = di+1<dates.length?dates[di+1].index:secText.length;
+        const seg = secText.slice(dPos, dEnd); const dateStr = dates[di][0]; const segU = seg.toUpperCase();
+        let tipo = null;
+        if (segU.includes('RESGATE')) tipo = 'RESGATE';
+        else if (segU.includes('AMORTIZA')) tipo = 'AMORTIZAÇÃO';
+        else if (segU.includes('APLICA')) tipo = 'APLICAÇÃO';
+        if (!tipo) continue;
+        const finNums = (seg.match(/-?[\d\.]+,\d+/g)||[]).filter(n => extIsFinancialEQI(n));
+        if (finNums.length < 2) continue;
+        const bruto = Math.abs(extParseAmountEQI(finNums[0])); const liq = Math.abs(extParseAmountEQI(finNums[finNums.length-1]));
+        let d = dateStr; if (d.length===8) { const p=d.split('/'); d=`${p[0]}/${p[1]}/20${p[2]}`; }
+        movs.push({ date:d, tipo, bruto, liq });
+      }
+      if (movs.length > 0) result[fundName] = movs;
+    }
+    return result;
+  }
+  function extFindEQIGross(fundMovs, ccDesc, ccValor, ccTipo) {
+    const absLiq = Math.abs(ccValor); const targetTipo = ccTipo==='Resgate'?'RESGATE':'AMORTIZAÇÃO';
+    const u = ccDesc.toUpperCase(); let fundHint = '';
+    const m1 = u.match(/(?:RESGATE|AQUISICAO|AQUISIÇÃO)\s+DE\s+COTAS\s+(?:NO\s+FUNDO\s+[-–]?\s*)(\w[\w\s]+)/);
+    if (m1) fundHint = m1[1].trim();
+    const m2 = u.match(/AMORTIZA[ÇC][AÃ]O\s+DO\s+FUNDO\s+(\w[\w\s]+)/);
+    if (m2) fundHint = m2[1].trim();
+    function sumByDate(movs) { const bd={}; for (const mov of movs.filter(m=>m.tipo===targetTipo)) { if (!bd[mov.date]) bd[mov.date]={bruto:0,liq:0}; bd[mov.date].bruto+=mov.bruto; bd[mov.date].liq+=mov.liq; } return bd; }
+    function searchFund(fname) { const bd=sumByDate(fundMovs[fname]); for (const v of Object.values(bd)) { if (Math.abs(v.liq-absLiq)<0.02) return v.bruto; } for (const mov of fundMovs[fname].filter(m=>m.tipo===targetTipo)) { if (Math.abs(mov.liq-absLiq)<0.02) return mov.bruto; } return null; }
+    if (fundHint) { const hw=fundHint.split(/\s+/).filter(w=>w.length>2); let bf=null,bs=0; for (const fn of Object.keys(fundMovs)) { const s=hw.filter(w=>fn.includes(w)).length; if(s>bs){bs=s;bf=fn;} } if (bf&&bs>0) { const f=searchFund(bf); if(f!==null) return f; } }
+    for (const fn of Object.keys(fundMovs)) { const f=searchFund(fn); if(f!==null) return f; }
+    return null;
+  }
+  function extParseEQICC(text, fundMovs, mapping) {
+    const flat = text.replace(/\n/g,' ').replace(/\s{2,}/g,' ');
+    const ccStartMatch = flat.match(/orrente\s*[-–]?\s*[Mm].{0,10}ovimenta/i);
+    if (!ccStartMatch) { extLog('Seção Conta Corrente não encontrada','err'); return []; }
+    const ccStart = ccStartMatch.index; const afterCC = flat.slice(ccStart);
+    const endA=afterCC.search(/[Ss]\s*aldo\s+[Ff]\s*inal/i); const endB=afterCC.search(/[Tt]\s*otal\s+de\s+[Cc]/i);
+    const endOffset=Math.min(endA>=0?endA:Infinity,endB>=0?endB:Infinity,10000);
+    const ccText=flat.slice(ccStart,ccStart+endOffset); const ccDates=[...ccText.matchAll(/\d{2}\/\d{2}\/\d{2,4}/g)];
+    extLog(`Seção CC: ${ccText.length} chars, ${ccDates.length} datas`,'ok');
+    const rows=[];
+    for (let i=0;i<ccDates.length;i++) {
+      const dPos=ccDates[i].index; const dEnd=i+1<ccDates.length?ccDates[i+1].index:ccText.length;
+      const seg=ccText.slice(dPos,dEnd).trim(); const dateStr=ccDates[i][0];
+      let dateNorm=dateStr; if(dateNorm.length===8){const p=dateNorm.split('/');dateNorm=`${p[0]}/${p[1]}/20${p[2]}`;}
+      const finNums=(seg.match(/-?[\d\.]+,\d+/g)||[]).filter(n=>extIsFinancialEQI(n));
+      const hasBareTrailingDash=/[-–]\s*$/.test(seg.replace(/-?[\d\.]+,\d+/g,'').trim());
+      let valor,saldo;
+      if(finNums.length>=2){valor=extParseAmountEQI(finNums[0]);saldo=extParseAmountEQI(finNums[1]);}
+      else if(finNums.length===1&&hasBareTrailingDash){valor=extParseAmountEQI(finNums[0]);saldo=null;}
+      else continue;
+      let desc=seg.slice(dateStr.length).replace(/-?[\d\.]+,\d+/g,'').replace(/\s+/g,' ').trim();
+      desc=desc.replace(/^\d{9}\s*[-–]\s*/,'');
+      const bleedIdx=desc.search(/\s+[Dd]\s*is[cl]|[Ss]eção com|[Oo]uvidoria/i);
+      if(bleedIdx>4) desc=desc.slice(0,bleedIdx);
+      desc=desc.replace(/[-–\s.]+$/,'').trim();
+      if(desc.length<4&&i>0){const prevSeg=ccText.slice(ccDates[i-1].index,dPos);const prevFin=[...prevSeg.matchAll(/-?[\d\.]+,\d+/g)].filter(m=>extIsFinancialEQI(m[0]));if(prevFin.length>0){const le=prevFin[prevFin.length-1].index+prevFin[prevFin.length-1][0].length;let orp=prevSeg.slice(le).replace(/\s+/g,' ').trim();orp=orp.replace(/[-–\s.]+$/,'').replace(/^[-–\s]+/,'').trim();if(orp.length>=4)desc=orp;}}
+      if(!desc||desc.length<4||desc.length>200) continue;
+      if(/^[Ss]aldo\s+[Aa]|[Dd]isclai|[Tt]otal\s+de|^[Ss]aldo\s+[Ff]|^[Ss]aldo\s+[Cc]|endimento\s+[Pp]rovisionado/i.test(desc)) continue;
+      const tipo=extClassifyTipoEQI(desc); const needsGross=(tipo==='Resgate'||tipo==='Amortização');
+      let valorFinal=valor; let isGross=!needsGross;
+      if(needsGross){const found=extFindEQIGross(fundMovs,desc,valor,tipo);if(found!==null){valorFinal=valor<0?-found:found;isGross=true;}}
+      const cnpj=['IRRF','IOF'].includes(tipo)?'—':extLookupCNPJ(desc,mapping);
+      rows.push({dataMov:dateNorm,dataLiq:dateNorm,historico:desc,valor:valorFinal,valorLiq:valor,saldo:saldo??0,tipo,cnpj,isGross,needsGross});
+    }
+    return rows;
+  }
+  function extParseEQI(text, mapping) {
+    const fundMovs = extParseEQIFundMovs(text);
+    const n = Object.keys(fundMovs).length;
+    extLog(`Seções de movimentação: ${n}`, n>0?'ok':'warn');
+    Object.entries(fundMovs).forEach(([name,movs]) => extLog(`  · ${name.slice(0,45)} (${movs.length} mov.)`,''));
+    const rows = extParseEQICC(text, fundMovs, mapping);
+    const notMatched = rows.filter(r=>r.needsGross&&!r.isGross);
+    if (notMatched.length>0) extLog(`${notMatched.length} linha(s) sem bruto — valor líquido mantido`,'warn');
+    return rows;
+  }
+
+  // ── Process ──
+  async function extProcessAll() {
+    if (!extSelectedFiles.length) return;
+    document.getElementById('extPreviewSection').classList.remove('visible');
+    document.getElementById('extStatusBox').innerHTML='';
+    document.getElementById('extStatusBox').classList.add('visible');
+    document.getElementById('extBtnProcess').disabled=true;
+    extAllProcessedRows=[];
+    const mapping=extGetMappingRows();
+    const fill=document.getElementById('extProgressFill');
+    const plabel=document.getElementById('extProgressLabel');
+    document.getElementById('extProgressWrap').classList.add('visible');
+
+    for (let i=0;i<extSelectedFiles.length;i++) {
+      const f=extSelectedFiles[i];
+      fill.style.width=Math.round((i/extSelectedFiles.length)*100)+'%';
+      plabel.textContent=`Processando ${i+1} de ${extSelectedFiles.length}: ${f.name}`;
+      extLog(`── ${f.name}`,'head'); extSetFileStatus(f,'processando...','');
+      try {
+        const text=await extExtractText(f);
+        const sheetName=extGetSheetName(text,f.name);
+        extLog(`Cliente: "${sheetName}"`,'ok');
+        let rows;
+        if (extCurrentBroker==='XP') {
+          const rawRows=extParseXP(text);
+          if(!rawRows.length){extLog('Nenhuma transação encontrada','err');extSetFileStatus(f,'erro','file-status-err');continue;}
+          rows=rawRows.map(r=>{const tipo=extClassifyTipoXP(r.historico);const cnpj=['IOF','IRRF'].includes(tipo)?'—':extLookupCNPJ(r.historico,mapping);return{...r,tipo,cnpj,isGross:true,needsGross:false};});
+        } else {
+          rows=extParseEQI(text,mapping);
+          if(!rows.length){extLog('Nenhuma transação na Conta Corrente encontrada','err');extSetFileStatus(f,'erro','file-status-err');continue;}
+        }
+        extAllProcessedRows.push({sheetName,rows,filename:f.name});
+        extLog(`${rows.length} transações · aba: "${sheetName}"`,'ok');
+        extSetFileStatus(f,`✓ ${rows.length} transações`,'file-status-ok');
+      } catch(e) {
+        extLog('Erro: '+e.message,'err'); console.error(e); extSetFileStatus(f,'erro','file-status-err');
+      }
+    }
+    fill.style.width='100%';
+    plabel.textContent=`Concluído — ${extAllProcessedRows.length} de ${extSelectedFiles.length} arquivo(s)`;
+    if (extAllProcessedRows.length>0) { extRenderPreview(extAllProcessedRows); extLog(`Pronto! ${extAllProcessedRows.length} aba(s) gerada(s).`,'ok'); }
+    document.getElementById('extBtnProcess').disabled=false;
+  }
+
+  function extLog(msg, type='') {
+    const box=document.getElementById('extStatusBox');
+    const cls=type==='ok'?'ext-log-ok':type==='warn'?'ext-log-warn':type==='err'?'ext-log-err':type==='head'?'ext-log-head':'';
+    box.innerHTML+=`<div class="${cls}">› ${msg}</div>`;
+    box.scrollTop=box.scrollHeight;
+  }
+
+  function extFmtVal(n) { if(n==null) return '—'; return 'R$ '+Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+  function extRenderPreview(sheets) {
+    document.getElementById('extPreviewSection').classList.add('visible');
+    const totalTx=sheets.reduce((s,sh)=>s+sh.rows.length,0);
+    const totalIn=sheets.flatMap(s=>s.rows).filter(r=>r.valor>0).reduce((s,r)=>s+r.valor,0);
+    const totalOut=sheets.flatMap(s=>s.rows).filter(r=>r.valor<0).reduce((s,r)=>s+r.valor,0);
+    document.getElementById('extSummaryChips').innerHTML=`
+      <div class="ext-chip">Clientes <span>${sheets.length}</span></div>
+      <div class="ext-chip">Transações <span>${totalTx}</span></div>
+      <div class="ext-chip">Entradas <span style="color:#4caf82">${extFmtVal(totalIn)}</span></div>
+      <div class="ext-chip">Saídas <span style="color:#e05555">${extFmtVal(Math.abs(totalOut))}</span></div>`;
+    const table=document.getElementById('extPreviewTable');
+    const isEQI=extCurrentBroker==='EQI';
+    table.innerHTML=`<thead><tr><th>Aba</th><th>CNPJ</th><th>Data</th><th>Descrição</th><th>Valor${isEQI?' (bruto)':''}</th><th>Saldo</th><th>Tipo</th></tr></thead>`;
+    const tbody=document.createElement('tbody');
+    let count=0;
+    for (const sh of sheets) {
+      for (const r of sh.rows) {
+        if(count++>60) break;
+        const tr=document.createElement('tr');
+        const valCls=r.valor<0?'td-neg':'td-pos';
+        const cnpjCls=r.cnpj==='—'?'td-na':'td-cnpj';
+        const hist=r.historico.length>38?r.historico.slice(0,37)+'…':r.historico;
+        tr.innerHTML=`<td class="td-sheet">${sh.sheetName}</td><td class="${cnpjCls}">${r.cnpj}</td><td>${r.dataMov}</td><td title="${r.historico}">${hist}</td><td class="${valCls}">${r.valor<0?'-':'+'}${extFmtVal(Math.abs(r.valor))}</td><td>${extFmtVal(r.saldo)}</td><td>${r.tipo}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+    if(totalTx>60){const tr=document.createElement('tr');tr.innerHTML=`<td colspan="7" style="text-align:center;color:var(--gray);padding:0.8rem;font-size:0.68rem;">… e mais ${totalTx-60} transações no Excel</td>`;tbody.appendChild(tr);}
+    table.appendChild(tbody);
+    document.getElementById('extBtnDownload').onclick=extDownloadExcel;
+  }
+
+  function extDownloadExcel() {
+    const wb=XLSX.utils.book_new();
+    const isEQI=extCurrentBroker==='EQI';
+    const header=isEQI?['CNPJ','Data','Descrição','Valor Bruto (R$)','Valor Líquido (R$)','Saldo (R$)','Tipo']:['CNPJ','Data Mov.','Data Liq.','Histórico','Valor (R$)','Saldo (R$)','Tipo'];
+    const usedNames=new Set();
+    for (const sh of extAllProcessedRows) {
+      let name=sh.sheetName.slice(0,31); let suffix=2;
+      while(usedNames.has(name)){name=sh.sheetName.slice(0,28)+'_'+suffix++;} usedNames.add(name);
+      let data;
+      if(isEQI){data=[header,...sh.rows.map(r=>[r.cnpj,r.dataMov,r.historico,r.valor,r.valorLiq!==undefined?r.valorLiq:r.valor,r.saldo,r.tipo])];}
+      else{data=[header,...sh.rows.map(r=>[r.cnpj,r.dataMov,r.dataLiq,r.historico,r.valor,r.saldo,r.tipo])];}
+      const ws=XLSX.utils.aoa_to_sheet(data);
+      ws['!cols']=(isEQI?[22,13,50,16,16,14,16]:[22,13,13,50,14,14,16]).map(w=>({wch:w}));
+      XLSX.utils.book_append_sheet(wb,ws,name);
+    }
+    const today=new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb,`extratos_${extCurrentBroker.toLowerCase()}_${today}.xlsx`);
+  }
+
+
+
+</script>
+</body>
+</html>

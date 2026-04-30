@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EH Investimentos — Área do Cliente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    :root {
+      --navy:       #0D1E4E;
+      --navy-dark:  #081537;
+      --navy-mid:   #122460;
+      --gold:       #D4820A;
+      --gold-light: #E8A030;
+      --white:      #FFFFFF;
+      --gray:       #8A9BB8;
+      --gray-light: #C8D4E8;
+      --border:     rgba(212, 130, 10, 0.25);
+      --error:      #e05555;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--navy-dark);
+      color: var(--white);
+      display: flex;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Left panel */
+    .left-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3rem 4rem;
+      background:
+        radial-gradient(ellipse 70% 60% at 30% 40%, rgba(18,36,96,0.95) 0%, transparent 70%),
+        linear-gradient(160deg, var(--navy-dark) 0%, var(--navy) 60%, var(--navy-mid) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .left-panel::before {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      border: 1px solid rgba(212,130,10,0.08);
+      top: -150px; right: -150px;
+      animation: spin 50s linear infinite;
+    }
+
+    .left-panel::after {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      border: 1px solid rgba(212,130,10,0.05);
+      bottom: -80px; left: -80px;
+      animation: spin 70s linear infinite reverse;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .panel-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      text-decoration: none;
+      position: relative;
+      z-index: 2;
+    }
+
+    .panel-logo-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .panel-logo-text span:first-child {
+      font-weight: 700;
+      font-size: 0.92rem;
+      letter-spacing: 0.1em;
+      color: var(--white);
+    }
+
+    .panel-logo-text span:last-child {
+      font-weight: 300;
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
+      color: var(--gray);
+      text-transform: uppercase;
+    }
+
+    .panel-quote {
+      position: relative;
+      z-index: 2;
+    }
+
+    .panel-quote blockquote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.6rem, 2.5vw, 2.4rem);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--gray-light);
+      margin-bottom: 1.2rem;
+    }
+
+    .panel-quote blockquote em {
+      color: var(--gold-light);
+      font-style: italic;
+    }
+
+    .panel-quote cite {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-style: normal;
+    }
+
+    .panel-footer {
+      position: relative;
+      z-index: 2;
+      font-size: 0.68rem;
+      color: var(--gray);
+      font-weight: 300;
+    }
+
+    /* Right panel — login form */
+    .right-panel {
+      width: 480px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 3rem 3.5rem;
+      background: var(--navy-dark);
+      border-left: 1px solid var(--border);
+      position: relative;
+    }
+
+    .form-header { margin-bottom: 2.5rem; }
+
+    .form-tag {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .form-tag::before {
+      content: '';
+      display: block;
+      width: 20px; height: 1px;
+      background: var(--gold);
+    }
+
+    .form-header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-header p {
+      font-size: 0.8rem;
+      color: var(--gray);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    .form-group {
+      margin-bottom: 1.1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(138,155,184,0.25);
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 300;
+      padding: 0.9rem 1.1rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--gold);
+      background: rgba(212,130,10,0.05);
+    }
+
+    input::placeholder { color: rgba(138,155,184,0.5); }
+
+    .password-wrap { position: relative; }
+
+    .toggle-pw {
+      position: absolute;
+      right: 1rem; top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--gray);
+      padding: 0;
+      display: flex;
+      align-items: center;
+      transition: color 0.2s;
+    }
+
+    .toggle-pw:hover { color: var(--gold); }
+
+    .btn-login {
+      width: 100%;
+      background: var(--gold);
+      color: var(--navy-dark);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 1rem;
+      border: none;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+
+    .btn-login:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(212,130,10,0.25);
+    }
+
+    .btn-login:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(8,21,55,0.3);
+      border-top-color: var(--navy-dark);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .error-msg {
+      background: rgba(224,85,85,0.1);
+      border: 1px solid rgba(224,85,85,0.35);
+      color: #f08080;
+      font-size: 0.78rem;
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .error-msg.show { display: block; }
+
+    .forgot-link {
+      display: block;
+      text-align: center;
+      margin-top: 1.2rem;
+      font-size: 0.72rem;
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .forgot-link:hover { color: var(--gold); }
+
+    .divider {
+      width: 40px; height: 1px;
+      background: var(--border);
+      margin: 2rem auto;
+    }
+
+    .security-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.65rem;
+      color: rgba(138,155,184,0.6);
+      text-align: center;
+    }
+
+
+    /* Set password view */
+    .set-password-view { display: none; }
+
+    /* Reset password view */
+    .reset-view { display: none; }
+    .login-view { display: block; }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.68rem;
+      color: var(--gray);
+      cursor: pointer;
+      margin-bottom: 2rem;
+      transition: color 0.2s;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .back-link:hover { color: var(--gold); }
+
+    .success-msg {
+      background: rgba(85,160,85,0.1);
+      border: 1px solid rgba(85,160,85,0.35);
+      color: #80c080;
+      font-size: 0.78rem;
+      padding: 0.75rem 1rem;
+      margin-top: 1rem;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .success-msg.show { display: block; }
+
+    @media (max-width: 800px) {
+      body { flex-direction: column; overflow: auto; min-height: 100vh; }
+
+      /* Left panel — compact header on mobile */
+      .left-panel {
+        flex: none;
+        padding: 1.8rem 1.5rem 1.5rem;
+        min-height: auto;
+        justify-content: flex-start;
+        gap: 1rem;
+      }
+      .left-panel::before, .left-panel::after { display: none; }
+      .panel-quote { display: none; }
+      .panel-footer { display: none; }
+
+      /* Right panel — full width form */
+      .right-panel {
+        width: 100%;
+        flex: 1;
+        padding: 2rem 1.5rem 3rem;
+        border-left: none;
+        border-top: 1px solid var(--border);
+      }
+
+      .form-header h1 { font-size: 1.8rem; }
+      .form-header { margin-bottom: 1.8rem; }
+
+      .btn-login { padding: 1rem; font-size: 0.75rem; }
+
+      input[type="email"],
+      input[type="password"] { font-size: 0.9rem; padding: 0.95rem 1rem; }
+    }
+
+    @media (max-width: 400px) {
+      .right-panel { padding: 1.5rem 1.2rem 2.5rem; }
+      .form-header h1 { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LEFT -->
+  <div class="left-panel">
+    <a href="index.html" class="panel-logo">
+      <img src="Logo_EH.png" width="38" height="38" alt="EH Investimentos" style="object-fit:contain;" />
+      <div class="panel-logo-text">
+        <span>EH INVESTIMENTOS</span>
+        <span>Gestão Financeira</span>
+      </div>
+    </a>
+
+    <div class="panel-quote">
+      <blockquote>
+        "O verdadeiro valor de uma gestão<br/>de excelência está na <em>transparência</em><br/>que ela proporciona."
+      </blockquote>
+      <cite>Eduardo Horta — Fundador</cite>
+    </div>
+
+    <div class="panel-footer">
+      © 2025 EH Investimentos. Exclusivo para investidores qualificados.
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-panel">
+
+    <!-- LOGIN VIEW -->
+    <div class="login-view" id="loginView">
+      <div class="form-header">
+        <div class="form-tag">Acesso Restrito</div>
+        <h1>Área do<br/>Cliente</h1>
+        <p>Entre com suas credenciais para acessar seus relatórios e informações exclusivas.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" placeholder="seu@email.com" autocomplete="email" />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <div class="password-wrap">
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+          <button class="toggle-pw" onclick="togglePassword()" type="button" tabindex="-1">
+            <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-login" id="loginBtn" onclick="doLogin()">
+        <span id="loginBtnText">Entrar</span>
+      </button>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <a class="forgot-link" onclick="showReset()" style="cursor:pointer;">Esqueci minha senha</a>
+
+      <div class="divider"></div>
+      <div class="security-note">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        Conexão segura e criptografada
+      </div>
+    </div>
+
+    <!-- RESET VIEW -->
+    <div class="reset-view" id="resetView">
+      <button class="back-link" onclick="showLogin()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Voltar ao login
+      </button>
+
+      <div class="form-header">
+        <div class="form-tag">Recuperação</div>
+        <h1>Redefinir<br/>Senha</h1>
+        <p>Informe seu e-mail cadastrado e enviaremos um link para redefinir sua senha.</p>
+      </div>
+
+      <div class="form-group">
+        <label for="resetEmail">E-mail</label>
+        <input type="email" id="resetEmail" placeholder="seu@email.com" />
+      </div>
+
+      <button class="btn-login" id="resetBtn" onclick="doReset()">
+        <span id="resetBtnText">Enviar link</span>
+      </button>
+
+      <div class="error-msg" id="resetErrorMsg"></div>
+      <div class="success-msg" id="resetSuccessMsg"></div>
+    </div>
+
+
+    <!-- SET PASSWORD VIEW (invite / recovery) -->
+    <div class="set-password-view" id="setPasswordView">
+      <button class="back-link" onclick="showLogin()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Voltar ao login
+      </button>
+
+      <div class="form-header">
+        <div class="form-tag">Primeiro Acesso</div>
+        <h1 id="setPasswordTitle">Crie sua senha</h1>
+        <p id="setPasswordDesc">Bem-vindo! Defina seu nome e uma senha para acessar o Portal do Cliente.</p>
+      </div>
+
+      <div id="nameField">
+        <div class="form-group">
+          <label for="newUserName">Seu nome completo</label>
+          <input type="text" id="newUserName" placeholder="Ex: João Silva" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="newPassword">Nova senha</label>
+        <input type="password" id="newPassword" placeholder="Mínimo 6 caracteres" />
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirmar senha</label>
+        <input type="password" id="confirmPassword" placeholder="Repita a senha" />
+      </div>
+
+      <div class="error-msg" id="setPasswordError"></div>
+
+      <button class="btn-login" id="setPasswordBtn" onclick="doSetPassword()">
+        <span>Salvar e Entrar</span>
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://migyqowqjfhvdcrtryms.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pZ3lxb3dxamZodmRjcnRyeW1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxODU1NjIsImV4cCI6MjA5MDc2MTU2Mn0.kydlPAkhBukqNDeLCS9Uhg-D5jZF9EL8Wi2oCDnY4eI';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { autoRefreshToken: true, persistSession: true, detectSessionInUrl: false } });
+
+    // ── ON LOAD: check for invite/recovery token in URL ──
+    // Check session immediately from storage (sync-like, no flicker)
+    // onAuthStateChange fires as soon as Supabase restores the session
+    sb.auth.onAuthStateChange((event, session) => {
+      // Only act on INITIAL_SESSION to avoid reacting to other events
+      if (event === 'INITIAL_SESSION') {
+        const hash = window.location.hash;
+        // If there's an invite/recovery token in the URL, handle it — don't redirect
+        if (hash && hash.includes('access_token')) return;
+        // Already logged in — go straight to dashboard
+        if (session) window.location.href = 'eh-cliente-dashboard.html';
+      }
+    });
+
+    // Handle invite/recovery token in URL
+    window.addEventListener('load', async () => {
+      const hash = window.location.hash;
+      if (!hash || !hash.includes('access_token')) return;
+
+      const params = new URLSearchParams(hash.substring(1));
+      const type        = params.get('type');
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token') || '';
+
+      if ((type === 'invite' || type === 'recovery') && accessToken) {
+        history.replaceState(null, '', window.location.pathname);
+        const { data, error } = await sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+        if (!error && data.session) {
+          showSetPassword(type);
+        }
+      }
+    });
+
+    // ── VIEWS ──
+    function showReset() {
+      document.getElementById('loginView').style.display = 'none';
+      document.getElementById('resetView').style.display = 'block';
+      document.getElementById('setPasswordView').style.display = 'none';
+    }
+
+    function showLogin() {
+      document.getElementById('loginView').style.display = 'block';
+      document.getElementById('resetView').style.display = 'none';
+      document.getElementById('setPasswordView').style.display = 'none';
+    }
+
+    function showSetPassword(type) {
+      document.getElementById('loginView').style.display = 'none';
+      document.getElementById('resetView').style.display = 'none';
+      document.getElementById('setPasswordView').style.display = 'block';
+
+      // Adjust title depending on flow
+      const title = document.getElementById('setPasswordTitle');
+      const desc = document.getElementById('setPasswordDesc');
+      if (type === 'invite') {
+        title.textContent = 'Crie sua senha';
+        desc.textContent = 'Bem-vindo! Defina seu nome e uma senha para acessar o Portal do Cliente.';
+        document.getElementById('nameField').style.display = 'block';
+      } else {
+        title.textContent = 'Nova senha';
+        desc.textContent = 'Defina sua nova senha de acesso ao Portal do Cliente.';
+        document.getElementById('nameField').style.display = 'none';
+      }
+    }
+
+    // ── LOGIN ──
+    function togglePassword() {
+      const pw = document.getElementById('password');
+      pw.type = pw.type === 'password' ? 'text' : 'password';
+    }
+
+    async function doLogin() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('loginBtn');
+      const btnText = document.getElementById('loginBtnText');
+      const errorMsg = document.getElementById('errorMsg');
+
+      errorMsg.classList.remove('show');
+      if (!email || !password) {
+        errorMsg.textContent = 'Por favor, preencha e-mail e senha.';
+        errorMsg.classList.add('show');
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.innerHTML = '<span class="spinner"></span>';
+
+      const { data: signData, error } = await sb.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        btn.disabled = false;
+        btnText.textContent = 'Entrar';
+        let msg = error.message || 'Erro desconhecido.';
+        if (error.message.includes('Invalid login') || error.message.includes('invalid_credentials')) msg = 'E-mail ou senha incorretos.';
+        if (error.message.includes('Email not confirmed')) msg = 'Por favor, confirme seu e-mail antes de entrar.';
+        if (error.message.includes('Too many requests')) msg = 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+        errorMsg.textContent = msg;
+        errorMsg.classList.add('show');
+        console.error('Login error:', error);
+      } else {
+        btnText.textContent = 'Redirecionando...';
+        const userId = signData?.user?.id;
+        const ADMIN_EMAILS_LOGIN = ['elisacmazzo@gmail.com', 'contato@eduardohorta.com.br'];
+        if (ADMIN_EMAILS_LOGIN.includes(email)) {
+          window.location.href = 'eh-cliente-dashboard.html';
+        } else {
+          try {
+            const { data: ob } = await sb.from('onboarding').select('completed, skip_onboarding').eq('user_id', userId).single();
+            if (!ob || (!ob.completed && !ob.skip_onboarding)) {
+              window.location.href = 'eh-onboarding.html';
+            } else {
+              window.location.href = 'eh-cliente-dashboard.html';
+            }
+          } catch(e2) {
+            window.location.href = 'eh-onboarding.html';
+          }
+        }
+      }
+    }
+
+    // ── PASSWORD RESET REQUEST ──
+    async function doReset() {
+      const email = document.getElementById('resetEmail').value.trim();
+      const btn = document.getElementById('resetBtn');
+      const btnText = document.getElementById('resetBtnText');
+      const errorMsg = document.getElementById('resetErrorMsg');
+      const successMsg = document.getElementById('resetSuccessMsg');
+
+      errorMsg.classList.remove('show');
+      successMsg.classList.remove('show');
+
+      if (!email) {
+        errorMsg.textContent = 'Por favor, informe seu e-mail.';
+        errorMsg.classList.add('show');
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.innerHTML = '<span class="spinner"></span>';
+
+      // redirectTo: full URL of this login page
+      // Update this URL when you change the domain
+      const loginUrl = 'https://elisaschulz.github.io/eh-investimentos/eh-cliente-login.html';
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: loginUrl
+      });
+
+      btn.disabled = false;
+      btnText.textContent = 'Enviar link';
+
+      if (error) {
+        errorMsg.textContent = 'Não foi possível enviar o e-mail. Tente novamente.';
+        errorMsg.classList.add('show');
+      } else {
+        successMsg.textContent = 'Link enviado! Verifique sua caixa de entrada.';
+        successMsg.classList.add('show');
+      }
+    }
+
+    // ── SET NEW PASSWORD ──
+    async function doSetPassword() {
+      const name = document.getElementById('newUserName').value.trim();
+      const pw = document.getElementById('newPassword').value;
+      const pw2 = document.getElementById('confirmPassword').value;
+      const errEl = document.getElementById('setPasswordError');
+      const btn = document.getElementById('setPasswordBtn');
+
+      errEl.classList.remove('show');
+
+      const nameVisible = document.getElementById('nameField').style.display !== 'none';
+      if (nameVisible && !name) {
+        errEl.textContent = 'Por favor, informe seu nome.';
+        errEl.classList.add('show');
+        return;
+      }
+      if (pw.length < 6) {
+        errEl.textContent = 'A senha precisa ter pelo menos 6 caracteres.';
+        errEl.classList.add('show');
+        return;
+      }
+      if (pw !== pw2) {
+        errEl.textContent = 'As senhas não coincidem.';
+        errEl.classList.add('show');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Salvando...';
+
+      const updateData = { password: pw };
+      if (nameVisible && name) updateData.data = { full_name: name };
+
+      const { error } = await sb.auth.updateUser(updateData);
+
+      if (error) {
+        errEl.textContent = 'Erro ao salvar: ' + error.message;
+        errEl.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = 'Salvar e Entrar';
+        return;
+      }
+
+      btn.textContent = 'Redirecionando...';
+      window.location.href = 'eh-cliente-dashboard.html';
+    }
+
+    // ── ENTER KEY ──
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      if (document.getElementById('setPasswordView').style.display === 'block') { doSetPassword(); return; }
+      if (document.getElementById('resetView').style.display === 'block') { doReset(); return; }
+      doLogin();
+    });
+  </script>
+
+</body>
+</html>
