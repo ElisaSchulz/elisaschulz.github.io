@@ -883,34 +883,28 @@ Qualquer dúvida, estou à disposição.</pre>
   // ── ONBOARDING CHECK ──
   async function checkOnboarding() {
     if (isAdmin) return; // admins skip onboarding
-    try {
-      const { data } = await sb.from('onboarding').select('*').eq('user_id', currentUser.id).single();
-      if (!data || data.completed || data.skip_onboarding) return;
+    const banner = document.getElementById('obBanner');
+    const steps  = document.getElementById('obBannerSteps');
+    if (!banner || !steps) return;
 
-      const banner = document.getElementById('obBanner');
-      const steps = document.getElementById('obBannerSteps');
-      if (!banner || !steps) return;
+    // maybeSingle returns null (not error) when no row found
+    const { data } = await sb.from('onboarding').select('*').eq('user_id', currentUser.id).maybeSingle();
 
-      const stepDefs = [
-        { key: 'step_cadastro',    label: 'Cadastro' },
-        { key: 'step_suitability', label: 'Perfil API' },
-        { key: 'step_contrato',    label: 'Contrato' }
-      ];
+    // Hide banner if onboarding complete
+    if (data && (data.completed || data.skip_onboarding)) return;
 
-      steps.innerHTML = stepDefs.map(s =>
-        `<span class="ob-step-chip ${data[s.key] ? 'done' : 'pending'}">${data[s.key] ? '✓' : '○'} ${s.label}</span>`
-      ).join('');
+    const stepDefs = [
+      { key: 'step_cadastro',    label: 'Cadastro' },
+      { key: 'step_suitability', label: 'Perfil API' },
+      { key: 'step_contrato',    label: 'Contrato' }
+    ];
 
-      banner.classList.add('visible');
-    } catch(e) {
-      // No onboarding record — show banner to start
-      const banner = document.getElementById('obBanner');
-      if (banner) {
-        document.getElementById('obBannerSteps').innerHTML =
-          '<span class="ob-step-chip pending">○ Cadastro</span><span class="ob-step-chip pending">○ Perfil API</span><span class="ob-step-chip pending">○ Contrato</span>';
-        banner.classList.add('visible');
-      }
-    }
+    steps.innerHTML = stepDefs.map(s => {
+      const done = data && data[s.key];
+      return `<span class="ob-step-chip ${done ? 'done' : 'pending'}">${done ? '✓' : '○'} ${s.label}</span>`;
+    }).join('');
+
+    banner.classList.add('visible');
   }
 
   // ── NAV ──
@@ -937,7 +931,7 @@ Qualquer dúvida, estou à disposição.</pre>
     grid.innerHTML = '<div class="loading-state"><div class="spinner"></div> Carregando...</div>';
     try {
       const { data: profiles } = await sb.from('profiles').select('id, full_name, email, updated_at');
-      const { data: onboardings } = await sb.from('onboarding').select('*');
+      const { data: onboardings } = await sb.from('onboarding').select('*').order('updated_at', { ascending: false });
       const obMap = {};
       (onboardings || []).forEach(o => { obMap[o.user_id] = o; });
 
