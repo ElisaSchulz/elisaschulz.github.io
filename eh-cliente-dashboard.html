@@ -877,7 +877,7 @@ Qualquer dúvida, estou à disposição.</pre>
     }
     loadReports();
     checkOnboarding();
-    sb.from('profiles').upsert({ id: currentUser.id, email, full_name: name, updated_at: new Date().toISOString() }, { onConflict: 'id' }).catch(() => {});
+    sb.from('profiles').upsert({ id: currentUser.id, email, full_name: name, updated_at: new Date().toISOString() }, { onConflict: 'id' }).then(() => {}).catch(() => {});
   }
 
   // ── ONBOARDING CHECK ──
