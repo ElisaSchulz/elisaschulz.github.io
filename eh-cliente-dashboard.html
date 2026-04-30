@@ -849,7 +849,7 @@ Qualquer dúvida, estou à disposição.</pre>
     initDashboard();
   }
 
-  function initDashboard() {
+  async function initDashboard() {
     document.getElementById('authGuard').style.display = 'none';
     const email    = currentUser.email;
     const name     = currentUser.user_metadata?.full_name || email.split('@')[0];
@@ -877,7 +877,7 @@ Qualquer dúvida, estou à disposição.</pre>
     }
     loadReports();
     checkOnboarding();
-    sb.from('profiles').upsert({ id: currentUser.id, email, full_name: name, updated_at: new Date().toISOString() }, { onConflict: 'id' }).then(() => {}).catch(() => {});
+    try { await sb.from('profiles').upsert({ id: currentUser.id, email, full_name: name, updated_at: new Date().toISOString() }, { onConflict: 'id' }); } catch(e) {}
   }
 
   // ── ONBOARDING CHECK ──
